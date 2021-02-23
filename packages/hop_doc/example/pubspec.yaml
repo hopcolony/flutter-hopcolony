@@ -1,0 +1,27 @@
+name: hop_doc_example
+description: Demonstrates how to use the hop_doc plugin.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  hop_doc:
+    path: ../
+
+  cupertino_icons: ^1.0.0
+  http: ^0.12.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+assets:
+  - assets/config.json

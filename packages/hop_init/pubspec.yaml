@@ -1,0 +1,17 @@
+name: hop_init
+description: Hop Init
+version: 0.0.2
+author: Luis Paarup
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.20.0 <2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  yaml: ^2.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

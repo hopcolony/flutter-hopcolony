@@ -1,0 +1,27 @@
+name: hop_drive_example
+description: Demonstrates how to use the hop_drive plugin.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  hop_drive:
+    path: ../
+
+  cupertino_icons: ^1.0.0
+  image_picker_web: ^1.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/.hop.config
