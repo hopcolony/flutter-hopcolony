@@ -6,31 +6,31 @@ import 'package:hop_init/hop_init.dart' as init;
 import 'img.dart' as asset;
 
 void main() async {
-  final String appName = "rentai";
-  final String projectName = "rental-friends";
-  final String tokenName = "luis123456789";
+  final String userName = "console@hopcolony.io";
+  final String projectName = "console";
+  final String tokenName = "supersecret";
 
   final String bucket = "hop-test";
   final String obj = "test_img";
   Uint8List img;
 
-  init.App app;
+  init.Project project;
   HopDrive db;
 
   setUpAll(() async {
-    app = await init.initialize(
-        app: appName, project: projectName, token: tokenName);
+    project = await init.initialize(
+        username: userName, project: projectName, token: tokenName);
     db = HopDrive.instance;
     img = Uint8List.fromList(asset.test_img);
   });
 
   test('Initialize', () {
-    expect(app.config, isNot(null));
-    expect(app.name, appName);
+    expect(project.config, isNot(null));
+    expect(project.name, projectName);
 
-    expect(db.app.name, app.name);
+    expect(db.project.name, project.name);
     expect(db.client.host, "drive.hopcolony.io");
-    expect(db.client.identity, app.config.identity);
+    expect(db.client.identity, project.config.identity);
   });
 
   test('Get non existing Bucket', () async {

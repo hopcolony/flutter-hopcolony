@@ -11,21 +11,21 @@ Future<Uint8List> loadImage(path) async {
 }
 
 class HopDrive {
-  init.App app;
+  init.Project project;
   HopDriveClient client;
   Signer signer;
   static final HopDrive instance = HopDrive._internal();
   factory HopDrive() => instance;
   HopDrive._internal() {
     if (client == null) {
-      app = init.app;
+      project = init.project;
       signer = Signer(
         host: "drive.hopcolony.io",
-        accessKey: app.config.app,
-        secretKey: app.config.token,
+        accessKey: project.config.project,
+        secretKey: project.config.token,
       );
       client = HopDriveClient(
-        app: init.app,
+        project: init.project,
         signer: signer,
       );
     }
@@ -55,7 +55,7 @@ class HopDrive {
 }
 
 class HopDriveClient {
-  init.App app;
+  init.Project project;
   final String host = "drive.hopcolony.io";
   final int port = 443;
   String identity, _baseUrl;
@@ -64,9 +64,9 @@ class HopDriveClient {
 
   String get baseUrl => _baseUrl;
 
-  HopDriveClient({init.App app, this.signer})
-      : app = app,
-        identity = app.config.identity {
+  HopDriveClient({init.Project project, this.signer})
+      : project = project,
+        identity = project.config.identity {
     _baseUrl = "https://$host:$port/$identity";
   }
 

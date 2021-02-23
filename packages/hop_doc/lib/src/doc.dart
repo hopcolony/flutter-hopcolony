@@ -5,15 +5,15 @@ import 'index_reference.dart';
 import 'package:dio/dio.dart';
 
 class HopDoc {
-  init.App app;
+  init.Project project;
   HopDocClient client;
   static final HopDoc instance = HopDoc._internal();
   factory HopDoc() => instance;
   HopDoc._internal() {
     if (client == null) {
-      app = init.app;
+      project = init.project;
       // App is initialized from Hop Init
-      client = HopDocClient(app: init.app);
+      client = HopDocClient(project: init.project);
     }
   }
 
@@ -48,15 +48,15 @@ class HopDoc {
 }
 
 class HopDocClient {
-  init.App app;
+  init.Project project;
   final String host = "docs.hopcolony.io";
   final int port = 443;
   String identity, _baseUrl;
   final Dio dio = Dio();
 
-  HopDocClient({init.App app})
-      : app = app,
-        identity = app.config.identity {
+  HopDocClient({init.Project project})
+      : project = project,
+        identity = project.config.identity {
     dio.options.headers['content-Type'] = 'application/json';
     this._baseUrl = "https://$host:$port/$identity/http";
   }

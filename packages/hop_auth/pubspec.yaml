@@ -15,15 +15,15 @@ dependencies:
 
   hop_init:
     git: 
-      url: git@gitlab.com:Paarup/hopcolony-flutter.git
+      url: git@github.com:hopcolony/flutter-hopcolony.git
       path: packages/hop_init
-      ref: master
+      ref: main
 
   hop_doc:
     git: 
-      url: git@gitlab.com:Paarup/hopcolony-flutter.git
+      url: git@github.com:hopcolony/flutter-hopcolony.git
       path: packages/hop_doc
-      ref: master
+      ref: main
 
 dev_dependencies:
   flutter_test:

@@ -3,30 +3,30 @@ import 'package:hop_doc/hop_doc.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String appName = "rentai";
-  final String projectName = "rental-friends";
-  final String tokenName = "luis123456789";
+  final String userName = "console@hopcolony.io";
+  final String projectName = "console";
+  final String tokenName = "supersecret";
 
   final String index = ".hop.tests";
   final String uid = "hopcolony";
   final Map<String, dynamic> data = {"purpose": "Test Hop Docs!"};
 
-  init.App app;
+  init.Project project;
   HopDoc db;
 
   setUpAll(() async {
-    app = await init.initialize(
-        app: appName, project: projectName, token: tokenName);
+    project = await init.initialize(
+        username: userName, project: projectName, token: tokenName);
     db = HopDoc.instance;
   });
 
   test('Initialize', () {
-    expect(app.config, isNot(null));
-    expect(app.name, appName);
+    expect(project.config, isNot(null));
+    expect(project.name, projectName);
 
-    expect(db.app.name, app.name);
+    expect(db.project.name, project.name);
     expect(db.client.host, "docs.hopcolony.io");
-    expect(db.client.identity, app.config.identity);
+    expect(db.client.identity, project.config.identity);
   });
 
   test('Status', () async {
