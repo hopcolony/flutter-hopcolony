@@ -4,7 +4,7 @@ import "dart:convert";
 import 'package:yaml/yaml.dart';
 import 'package:flutter/material.dart';
 
-App _app;
+Project _project;
 
 class InvalidConfig implements Exception {
   String cause;
@@ -17,21 +17,23 @@ class ConfigNotFound implements Exception {
 }
 
 class HopConfig {
-  final String app, project, token;
+  final String username, project, token;
   String identity;
-  HopConfig({this.app, this.project, this.token}) {
+  HopConfig({this.username, this.project, this.token}) {
     this.identity = computeIdentity();
   }
 
   String computeIdentity() {
-    if (this.app == null || this.project == null) return null;
-    final raw = this.project + "." + this.app;
+    if (this.username == null || this.project == null) return null;
     Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    String encodedUsername = 'a' +
+        stringToBase64.encode(this.username).toLowerCase().replaceAll("=", "a");
+    final raw = encodedUsername + "." + this.project;
     return stringToBase64.encode(raw);
   }
 
   bool get valid =>
-      this.app != null &&
+      this.username != null &&
       this.project != null &&
       this.token != null &&
       this.identity != null;
@@ -53,29 +55,31 @@ class HopConfig {
   }
 
   HopConfig.fromJson(var json)
-      : app = json["app"],
+      : username = json["username"],
         project = json["project"],
         token = json["token"];
 
   Map get json =>
-      {"app": this.app, "project": this.project, "token": this.token};
+      {"username": this.username, "project": this.project, "token": this.token};
 }
 
-class App {
-  final String app, project, token, configFile;
+class Project {
+  final String username, project, token, configFile;
   final Completer completer;
   HopConfig config;
 
-  App(this.completer, {this.app, this.project, this.token, this.configFile}) {
-    // Use app, project and token values if the 3 provided
-    if (this.app != null || this.project != null || this.token != null) {
-      if (this.app != null && this.project != null && this.token != null) {
-        this.config = HopConfig(app: app, project: project, token: token);
+  Project(this.completer,
+      {this.username, this.project, this.token, this.configFile}) {
+    // Use username, project and token values if the 3 provided
+    if (this.username != null || this.project != null || this.token != null) {
+      if (this.username != null && this.project != null && this.token != null) {
+        this.config =
+            HopConfig(username: username, project: project, token: token);
         completer.complete(this.config);
         return;
       } else {
         throw InvalidConfig(
-            "If you provide one of [app, project, token], you need to provide the 3 of them");
+            "If you provide one of [username, project, token], you need to provide the 3 of them");
       }
     }
 
@@ -87,28 +91,31 @@ class App {
     });
   }
 
-  String get name => this.config.app;
+  String get name => this.config.project;
 }
 
-Future<App> initialize(
+Future<Project> initialize(
     {String configFile = ".hop.config",
-    String app,
+    String username,
     String project,
     String token}) async {
   WidgetsFlutterBinding.ensureInitialized();
   Completer completer = Completer();
-  _app = App(completer,
-      configFile: configFile, app: app, project: project, token: token);
+  _project = Project(completer,
+      configFile: configFile,
+      username: username,
+      project: project,
+      token: token);
   await completer.future;
-  return _app;
+  return _project;
 }
 
-App get app {
-  assert(_app != null,
-      "You need to initialize the app first with init.initialize()");
-  return _app;
+Project get project {
+  assert(_project != null,
+      "You need to initialize the project first with init.initialize()");
+  return _project;
 }
 
 HopConfig get config {
-  return app.config;
+  return project.config;
 }
