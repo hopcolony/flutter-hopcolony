@@ -54,10 +54,10 @@ class HopConfig {
     return HopConfig.fromJson(yaml);
   }
 
-  HopConfig.fromJson(var json)
-      : username = json["username"],
-        project = json["project"],
-        token = json["token"];
+  factory HopConfig.fromJson(var json) => HopConfig(
+      username: json["username"],
+      project: json["project"],
+      token: json["token"]);
 
   Map get json =>
       {"username": this.username, "project": this.project, "token": this.token};
