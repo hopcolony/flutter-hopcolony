@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hop_auth_example/screens/home.dart';
 import 'package:hop_auth_example/screens/login.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:hop_init/hop_init.dart' as init;
 
-import 'package:hop_init/hop_init.dart';
-
-void main() {
-  // Necessary to load the Hop configuration
-  HopInit.instance.load(onConfigLoaded: () => runApp(Root()));
+void main() async {
+  setUrlStrategy(PathUrlStrategy());
+  await init.initialize();
+  runApp(Root());
 }
 
 class Root extends StatefulWidget {
@@ -19,9 +20,11 @@ class RootState extends State<Root> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/login',
+      onUnknownRoute: (settings) =>
+          MaterialPageRoute(builder: (_) => LoginScreen()),
       routes: {
-        '/': (context) => LoginScreen(),
+        '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
       },
     );
