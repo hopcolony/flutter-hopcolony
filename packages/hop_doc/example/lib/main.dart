@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hop_doc_example/screens/home.dart';
-import 'package:hop_init/hop_init.dart';
+import 'package:hop_init/hop_init.dart' as init;
 
-void main() {
-  // Necessary to load the Hop configuration
-  HopInit.instance.load(onConfigLoaded: () => runApp(Root()));
+void main() async {
+  await init.initialize();
+  runApp(Root());
 }
 
 class Root extends StatefulWidget {
