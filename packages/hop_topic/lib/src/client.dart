@@ -40,7 +40,7 @@ class HopTopicConnectionSettings {
   HopTopicConnectionSettings(
       {this.host = "topics.hopcolony.io",
       this.amqpPort = 32012,
-      this.stompPort = 32666,
+      this.stompPort = 443,
       this.virtualHost,
       this.authenticator});
 
@@ -72,7 +72,7 @@ class HopTopicClient {
     if (kIsWeb) {
       _stompClient = StompClient(
         config: StompConfig(
-            url: 'ws://${settings.host}:${settings.stompPort}/ws',
+            url: 'wss://${settings.host}:${settings.stompPort}/ws',
             stompConnectHeaders: {
               'login': settings.authenticator.username,
               'passcode': settings.authenticator.password,
