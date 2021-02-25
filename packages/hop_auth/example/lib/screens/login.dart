@@ -11,8 +11,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> signInWithHopcolony() async {
     final AuthResult result = await _auth.signInWithHopcolony();
-    print(result);
-    Navigator.of(context).popAndPushNamed('/home');
+    if (result.success)
+      Navigator.of(context).popAndPushNamed('/home');
+    else
+      print(result.reason);
   }
 
   @override

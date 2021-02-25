@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:html';
+import 'package:hop_auth/src/hopcolony_provider.dart';
 import 'package:hop_init/hop_init.dart' as init;
 import 'package:hop_auth/hop_auth.dart';
 import 'package:hop_doc/hop_doc.dart';
+import 'package:hop_topic/hop_topic.dart';
 import 'package:uuid/uuid.dart';
 
 class HopAuth {
@@ -42,7 +44,7 @@ class HopAuth {
 
     currentUser = HopUser.fromJson(doc.doc.source);
 
-    return AuthResult(user: currentUser);
+    return AuthResult(success: true, user: currentUser);
   }
 
   Future<AuthResult> signInWithHopcolony() async {
@@ -53,20 +55,26 @@ class HopAuth {
         });
     this._oauthWindow = window.open(uri.toString(), "Hopcolony OAuth2");
     // Receive confirmation via topics
-    Completer<Token> loginCompleted = Completer<Token>();
-    // HopTopicConnection conn = topics.connection();
-    // conn.subscribe("oauth/${init.config.identity}", (msg) {
-    //   print(msg);
-    //   if (msg["success"]) {
-    //     loginCompleted.complete(Token(msg["idToken"]));
-    //   } else {
-    //     loginCompleted.complete(null);
-    //   }
-    // });
-    Token idToken = await loginCompleted.future;
-    print(idToken);
-    this._oauthWindow.close();
-    currentUser = HopUser(name: "Luis");
-    return AuthResult(user: currentUser);
+    Completer<AuthResult> loginCompleted = Completer<AuthResult>();
+    HopTopic _topics = HopTopic.instance;
+    StreamSubscription subscription = _topics
+        .subscribe("oauth", outputType: OutputType.JSON)
+        .listen((msg) async {
+      if (msg["success"]) {
+        HopAuthCredential credential =
+            HopAuthProvider.credential(idToken: msg["idToken"]);
+        AuthResult result = await signInWithCredential(credential);
+        loginCompleted.complete(result);
+      } else {
+        loginCompleted
+            .complete(AuthResult(success: false, reason: msg["reason"]));
+      }
+      this._oauthWindow.close();
+    });
+
+    AuthResult result = await loginCompleted.future;
+    subscription.cancel();
+
+    return result;
   }
 }

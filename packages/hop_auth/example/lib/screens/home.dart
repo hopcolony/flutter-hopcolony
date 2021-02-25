@@ -11,11 +11,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final HopAuth _auth = HopAuth.instance;
 
-  Future<void> signOutGoogle() async {
-    await googleSignIn.signOut();
-    Navigator.of(context).popAndPushNamed('/');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,10 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: signOutGoogle,
+            onPressed: () => Navigator.of(context).popAndPushNamed('/'),
           )
         ],
       ),
+      body: Center(child: Text(_auth.currentUser.json.toString())),
     );
   }
 }

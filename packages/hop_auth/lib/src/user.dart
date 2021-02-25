@@ -29,4 +29,16 @@ class HopUser {
         idToken: Token(json["idToken"]),
         isAnonymous: json["isAnonymous"],
       );
+
+  Map<String, dynamic> get json => {
+        "registerTs": registerTs.toString(),
+        "lastLoginTs": lastLoginTs.toString(),
+        "uuid": uuid,
+        "email": email,
+        "name": name,
+        "picture": picture,
+        "locale": locale,
+        "idToken": idToken.rawValue,
+        "isAnonymous": isAnonymous,
+      };
 }

@@ -26,6 +26,12 @@ dependencies:
       url: git@github.com:hopcolony/flutter-hopcolony.git
       path: packages/hop_doc
       ref: main
+    
+  hop_topic:
+    git: 
+      url: git@github.com:hopcolony/flutter-hopcolony.git
+      path: packages/hop_topic
+      ref: main
 
 dev_dependencies:
   flutter_test:
