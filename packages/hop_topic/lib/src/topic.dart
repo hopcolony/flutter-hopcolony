@@ -1,24 +1,23 @@
-import 'package:dart_amqp/dart_amqp.dart';
 import 'package:hop_init/hop_init.dart' as init;
+import 'client.dart';
 import 'subscriber.dart';
 import 'publisher.dart';
 
 class HopTopic {
   init.Project project;
-  ConnectionSettings connectionSettings;
-  Authenticator authenticator;
+  HopTopicConnectionSettings connectionSettings;
+  HopTopicAuthenticator authenticator;
   final _host = "topics.hopcolony.io";
-  final _port = 32012;
   static final HopTopic instance = HopTopic._internal();
   factory HopTopic() => instance;
   HopTopic._internal() {
     project = init.project;
-    authenticator = PlainAuthenticator(init.config.identity, init.config.token);
-    connectionSettings = ConnectionSettings(
+    authenticator = HopTopicAuthenticator(
+        username: init.config.identity, password: init.config.token);
+    connectionSettings = HopTopicConnectionSettings(
         host: _host,
-        port: _port,
         virtualHost: init.config.identity,
-        authProvider: authenticator);
+        authenticator: authenticator);
   }
 
   String get host => _host;

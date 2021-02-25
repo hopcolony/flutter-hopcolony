@@ -1,30 +1,21 @@
 import 'dart:async';
-
-import 'package:dart_amqp/dart_amqp.dart';
+import 'client.dart';
 
 class HopTopicPublisher {
-  final ConnectionSettings connectionSettings;
+  final HopTopicConnectionSettings connectionSettings;
   final String topic;
-  Client _client;
-  Exchange _exchange;
+  HopTopicClient _client;
   final Completer connected = Completer();
   HopTopicPublisher(this.connectionSettings, this.topic) {
-    init();
-  }
-
-  Future<void> init() async {
-    _client = Client(settings: connectionSettings);
-    Channel channel = await _client.channel();
-    _exchange = await channel.exchange(topic, ExchangeType.FANOUT);
-    connected.complete();
+    _client = HopTopicClient(settings: connectionSettings);
+    _client.getReadyToPublish(topic);
   }
 
   Future<void> send(dynamic body, {String routingKey}) async {
-    await connected.future;
-    _exchange?.publish(body, routingKey);
+    await _client.send(body, routingKey: routingKey);
   }
 
   void close() {
-    _client?.close();
+    _client.close();
   }
 }

@@ -32,21 +32,21 @@ class Home extends StatelessWidget {
           children: [
             StreamBuilder<dynamic>(
               stream: _topics
-                  .subscribe("example", outputType: OutputType.STRING)
+                  .subscribe("example", outputType: OutputType.JSON)
                   .stream,
               builder: (_, snapshot) {
                 if (snapshot.hasData) {
-                  return Text(snapshot.data);
+                  return Text(snapshot.data.toString());
                 } else {
                   return Text("Nothing received yet");
                 }
               },
             ),
-            // TextButton(
-            //   onPressed: () async =>
-            //       (await _topics.publisher("example")).send("Hello World"),
-            //   child: Text("Send Hello to server"),
-            // )
+            TextButton(
+              onPressed: () async =>
+                  await _topics.publisher("example").send({"data": "Hello"}),
+              child: Text("Send Hello to server"),
+            )
           ],
         ),
       ),
