@@ -34,7 +34,6 @@ void main() async {
     HopTopicPublisher pub = HopTopic.instance.publisher(topic);
     StreamSubscription<dynamic> subscription = HopTopic.instance
         .subscribe(topic, outputType: OutputType.STRING)
-        .stream
         .listen((msg) => expect(msg, dataString));
     await pub.send(dataString);
     await Future.delayed(Duration(milliseconds: 300));
@@ -46,7 +45,6 @@ void main() async {
     HopTopicPublisher pub = HopTopic.instance.publisher(topic);
     StreamSubscription<dynamic> subscription = HopTopic.instance
         .subscribe(topic, outputType: OutputType.JSON)
-        .stream
         .listen((msg) => expect(msg, dataJson));
     await pub.send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));

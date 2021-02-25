@@ -31,9 +31,8 @@ class Home extends StatelessWidget {
         child: Column(
           children: [
             StreamBuilder<dynamic>(
-              stream: _topics
-                  .subscribe("example", outputType: OutputType.JSON)
-                  .stream,
+              stream:
+                  _topics.subscribe("test-topic", outputType: OutputType.JSON),
               builder: (_, snapshot) {
                 if (snapshot.hasData) {
                   return Text(snapshot.data.toString());
@@ -44,7 +43,7 @@ class Home extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async =>
-                  await _topics.publisher("example").send({"data": "Hello"}),
+                  await _topics.publisher("test-topic").send({"data": "Hello"}),
               child: Text("Send Hello to server"),
             )
           ],

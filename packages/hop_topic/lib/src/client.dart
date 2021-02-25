@@ -78,7 +78,9 @@ class HopTopicClient {
               'passcode': settings.authenticator.password,
               'host': settings.virtualHost
             },
-            onConnect: (client, _) => connected.complete()),
+            onConnect: (client, _) {
+              if (!connected.isCompleted) connected.complete();
+            }),
       );
     } else {
       _amqpClient = amqp.Client(settings: settings.toAMQP);
@@ -99,9 +101,10 @@ class HopTopicClient {
   void onListenAMQP(String topic) {
     _amqpClient
         .channel()
-        .then((amqp.Channel channel) =>
-            channel.exchange(topic, amqp.ExchangeType.FANOUT))
-        .then((amqp.Exchange exchange) => exchange.bindPrivateQueueConsumer([]))
+        .then((amqp.Channel channel) => channel.exchange(
+            "amq.topic", amqp.ExchangeType.TOPIC, durable: true))
+        .then((amqp.Exchange exchange) =>
+            exchange.bindPrivateQueueConsumer([topic]))
         .then((amqp.Consumer consumer) => consumer.listen(
             (amqp.AmqpMessage message) =>
                 _controller.add(HopTopicMessage.fromAMQP(message))));
@@ -111,7 +114,7 @@ class HopTopicClient {
     _stompClient.activate();
     await connected.future;
     _stompUnsubscribeFunction = _stompClient.subscribe(
-      destination: "/exchange/$topic",
+      destination: "/topic/$topic",
       callback: (frame) => _controller.add(HopTopicMessage.fromSTOMP(frame)),
     );
   }
@@ -122,7 +125,8 @@ class HopTopicClient {
       _stompClient.activate();
     } else {
       amqp.Channel channel = await _amqpClient.channel();
-      _amqpExchange = await channel.exchange(topic, amqp.ExchangeType.FANOUT);
+      _amqpExchange = await channel
+          .exchange("amq.topic", amqp.ExchangeType.TOPIC, durable: true);
       connected.complete();
     }
   }
@@ -131,16 +135,16 @@ class HopTopicClient {
     await connected.future;
     if (kIsWeb) {
       if (body is Map) body = jsonEncode(body);
-      _stompClient.send(destination: "/exchange/$_publishTopic", body: body);
+      _stompClient.send(destination: "/topic/$_publishTopic", body: body);
     } else {
-      _amqpExchange?.publish(body, routingKey);
+      _amqpExchange?.publish(body, _publishTopic);
     }
   }
 
   void close() {
     _amqpClient?.close();
     if (_stompUnsubscribeFunction != null) {
-      _stompUnsubscribeFunction(unsubscribeHeaders: {});
+      _stompUnsubscribeFunction();
     }
     _stompClient?.deactivate();
     _controller?.close();

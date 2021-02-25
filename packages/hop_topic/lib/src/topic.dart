@@ -23,8 +23,8 @@ class HopTopic {
   String get host => _host;
   String get identity => init.config.identity;
 
-  HopTopicSubscriber subscribe(String topic, {OutputType outputType}) =>
-      HopTopicSubscriber(connectionSettings, topic, outputType);
+  Stream<dynamic> subscribe(String topic, {OutputType outputType}) =>
+      HopTopicSubscriber(connectionSettings, topic, outputType).stream;
 
   HopTopicPublisher publisher(String topic) =>
       HopTopicPublisher(connectionSettings, topic);
