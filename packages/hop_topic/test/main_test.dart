@@ -1,16 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hop_topic/hop_topic.dart';
 import 'package:hop_init/hop_init.dart' as init;
-import 'package:hop_topic/src/subscriber.dart';
 
 void main() async {
   final String userName = "console@hopcolony.io";
   final String projectName = "console";
   final String tokenName = "supersecret";
 
-  final String topic = "test-topic";
+  final String topic = "test-topic2";
   final String dataString = "Test Message";
   final Map<String, dynamic> dataJson = {"data": "Testing Hop Topics!"};
 
@@ -31,24 +29,24 @@ void main() async {
   });
 
   test('Subscriber Publisher String', () async {
-    HopTopicPublisher pub = HopTopic.instance.publisher(topic);
     StreamSubscription<dynamic> subscription = HopTopic.instance
-        .subscribe(topic, outputType: OutputType.STRING)
+        .topic(topic)
+        .listen(outputType: OutputType.STRING)
         .listen((msg) => expect(msg, dataString));
-    await pub.send(dataString);
+    await Future.delayed(Duration(milliseconds: 100));
+    HopTopic.instance.topic(topic).send(dataString);
     await Future.delayed(Duration(milliseconds: 300));
-    pub.close();
     subscription.cancel();
   });
 
   test('Subscriber Publisher Json', () async {
-    HopTopicPublisher pub = HopTopic.instance.publisher(topic);
     StreamSubscription<dynamic> subscription = HopTopic.instance
-        .subscribe(topic, outputType: OutputType.JSON)
+        .topic(topic)
+        .listen(outputType: OutputType.JSON)
         .listen((msg) => expect(msg, dataJson));
-    await pub.send(dataJson);
+    await Future.delayed(Duration(milliseconds: 100));
+    HopTopic.instance.topic(topic).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
-    pub.close();
     subscription.cancel();
   });
 }

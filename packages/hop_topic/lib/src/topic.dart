@@ -1,12 +1,13 @@
 import 'package:hop_init/hop_init.dart' as init;
 import 'client.dart';
-import 'subscriber.dart';
-import 'publisher.dart';
+import 'queue.dart';
+import 'exchange.dart';
 
 class HopTopic {
   init.Project project;
   HopTopicConnectionSettings connectionSettings;
   HopTopicAuthenticator authenticator;
+  HopTopicClient _client;
   final _host = "topics.hopcolony.io";
   static final HopTopic instance = HopTopic._internal();
   factory HopTopic() => instance;
@@ -18,14 +19,26 @@ class HopTopic {
         host: _host,
         virtualHost: init.config.identity,
         authenticator: authenticator);
+
+    if (_client == null) {
+      _client = HopTopicClient(settings: connectionSettings);
+    }
   }
 
   String get host => _host;
   String get identity => init.config.identity;
 
-  Stream<dynamic> subscribe(String topic, {OutputType outputType}) =>
-      HopTopicSubscriber(connectionSettings, topic, outputType).stream;
+  HopTopicQueue queue(String name) =>
+      HopTopicQueue(_client, binding: name, name: name);
 
-  HopTopicPublisher publisher(String topic) =>
-      HopTopicPublisher(connectionSettings, topic);
+  HopTopicExchange exchange(String name,
+          {create = true, type = ExchangeType.TOPIC}) =>
+      HopTopicExchange(_client, name, create: create, type: type);
+
+  HopTopicQueue topic(String name) =>
+      HopTopicQueue(_client, exchange: "amq.topic", binding: name);
+
+  void close() {
+    _client.close();
+  }
 }

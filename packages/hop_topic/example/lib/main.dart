@@ -32,9 +32,10 @@ class Home extends StatelessWidget {
           children: [
             StreamBuilder<dynamic>(
               stream:
-                  _topics.subscribe("test-topic", outputType: OutputType.JSON),
+                  _topics.exchange("oauth").listen(outputType: OutputType.JSON),
               builder: (_, snapshot) {
                 if (snapshot.hasData) {
+                  print(snapshot.data);
                   return Text(snapshot.data.toString());
                 } else {
                   return Text("Nothing received yet");
@@ -42,8 +43,10 @@ class Home extends StatelessWidget {
               },
             ),
             TextButton(
-              onPressed: () async =>
-                  await _topics.publisher("test-topic").send({"data": "Hello"}),
+              onPressed: () => _topics
+                  .exchange("oauth")
+                  .topic("luis")
+                  .send({"data": "Hello"}),
               child: Text("Send Hello to server"),
             )
           ],
