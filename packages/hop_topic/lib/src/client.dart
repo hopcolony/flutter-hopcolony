@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dart_amqp/dart_amqp.dart' as amqp;
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 enum ExchangeType { DIRECT, FANOUT, TOPIC }
@@ -78,170 +75,61 @@ class HopTopicConnectionSettings {
       authProvider: authenticator.toAMQP);
 }
 
-class HopTopicClient {
-  final HopTopicConnectionSettings settings;
-  Completer connected = Completer();
-  String _publishTopic;
-
-  // AMQP
-  amqp.Client _amqpClient;
-
-  // STOMP
-  StompClient _stompClient;
-  dynamic _stompUnsubscribeFunction;
-
+abstract class HopTopicClient {
   // Stream
-  StreamController<dynamic> _controller;
-  Stream<HopTopicMessage> get stream => _controller.stream;
+  List<StreamController<dynamic>> _controllers = [];
 
-  HopTopicClient({this.settings}) {
-    if (kIsWeb) {
-      _stompClient = StompClient(
-        config: StompConfig(
-            url: 'wss://${settings.host}:${settings.stompPort}/ws',
-            stompConnectHeaders: {
-              'login': settings.authenticator.username,
-              'passcode': settings.authenticator.password,
-              'host': settings.virtualHost
-            },
-            onConnect: (client, _) {
-              if (!connected.isCompleted) connected.complete();
-            }),
-      );
-    } else {
-      _amqpClient = amqp.Client(settings: settings.toAMQP);
-    }
-  }
+  Future<void> onListen(
+    StreamController<dynamic> controller,
+    String exchangeName,
+    ExchangeType exchangeType,
+    bool exchangeIsDurable,
+    String binding,
+    String queueName,
+    bool queueIsDurable,
+    bool queueIsExclusive,
+    bool queueAutoDelete,
+    OutputType outputType,
+  );
 
-  Stream<dynamic> listen(
-      String exchange,
-      ExchangeType exchangeType,
-      String binding,
-      String queue,
-      bool exclusive,
-      bool autoDelete,
-      OutputType outputType,
-      {bool durable = true}) {
-    Function onListen = kIsWeb ? onListenSTOMP : onListenAMQP;
-    _controller = StreamController<dynamic>(
-      onListen: () => onListen(exchange, exchangeType, binding, queue,
-          exclusive, autoDelete, outputType, durable),
-      onCancel: close,
+  Stream<dynamic> subscribe(
+    String exchangeName,
+    ExchangeType exchangeType,
+    String binding,
+    String queueName,
+    bool queueIsDurable,
+    bool queueIsExclusive,
+    bool queueAutoDelete,
+    OutputType outputType,
+    bool exchangeIsDurable,
+  ) {
+    StreamController<dynamic> controller;
+    controller = StreamController<dynamic>(
+      onListen: () => onListen(
+          controller,
+          exchangeName,
+          exchangeType,
+          exchangeIsDurable,
+          binding,
+          queueName,
+          queueIsDurable,
+          queueIsExclusive,
+          queueAutoDelete,
+          outputType),
+      onCancel: () => close(controller),
     );
-    return _controller.stream;
+    _controllers.add(controller);
+    return controller.stream;
   }
 
-  dynamic parseAMQPExchangeType(ExchangeType type) {
-    switch (type) {
-      case ExchangeType.DIRECT:
-        return amqp.ExchangeType.DIRECT;
-      case ExchangeType.FANOUT:
-        return amqp.ExchangeType.FANOUT;
-      case ExchangeType.TOPIC:
-        return amqp.ExchangeType.TOPIC;
-      default:
-        break;
-    }
-  }
+  Future<void> send(
+    dynamic body,
+    String exchangeName, {
+    String binding = "",
+    String queueName = "",
+    ExchangeType exchangeType = ExchangeType.TOPIC,
+    bool exchangeIsDurable = false,
+  });
 
-  String getSTOMPDestination(String exchange, String binding, String queue) {
-    String destination;
-    if (exchange.isEmpty) {
-      if (queue.isNotEmpty) {
-        destination = "/queue/$queue";
-      } else {
-        destination = binding.isEmpty ? "/topic/#" : "/topic/$binding";
-      }
-    } else {
-      destination = binding.isEmpty
-          ? "/exchange/$exchange/#"
-          : "/exchange/$exchange/$binding";
-    }
-    return destination;
-  }
-
-  void onListenAMQP(
-      String exchangeName,
-      ExchangeType exchangeType,
-      String binding,
-      String queueName,
-      bool exclusive,
-      bool autoDelete,
-      OutputType outputType,
-      bool durable) async {
-    amqp.Channel channel = await _amqpClient.channel();
-
-    amqp.Queue queue = await channel.queue(queueName,
-        exclusive: exclusive, autoDelete: autoDelete);
-
-    if (exchangeName.isNotEmpty) {
-      amqp.Exchange exchange = await channel.exchange(
-          exchangeName, parseAMQPExchangeType(exchangeType),
-          durable: durable);
-      queue = await queue.bind(exchange, binding);
-    }
-
-    amqp.Consumer consumer = await queue.consume();
-    consumer.listen((amqp.AmqpMessage message) =>
-        _controller.add(HopTopicMessage.fromAMQP(message, outputType)));
-  }
-
-  Future<void> onListenSTOMP(
-      String exchange,
-      ExchangeType exchangeType,
-      String binding,
-      String queue,
-      bool exclusive,
-      bool autoDelete,
-      OutputType outputType,
-      bool durable) async {
-    _stompClient.activate();
-    await connected.future;
-    _stompUnsubscribeFunction = _stompClient.subscribe(
-      destination: getSTOMPDestination(exchange, binding, queue),
-      headers: queue.isNotEmpty
-          ? {
-              "x-queue-name": queue,
-              "durable": "false",
-              "auto-delete": "true",
-              "exclusive": "false"
-            }
-          : {
-              "durable": "false",
-              "auto-delete": "true",
-            },
-      callback: (frame) =>
-          _controller.add(HopTopicMessage.fromSTOMP(frame, outputType)),
-    );
-  }
-
-  Future<void> send(dynamic body, String exchangeName,
-      {ExchangeType exchangeType = ExchangeType.TOPIC,
-      String binding = "#",
-      String queue = "",
-      durable = true}) async {
-    if (kIsWeb) {
-      _stompClient.activate();
-      await connected.future;
-      if (body is Map) body = jsonEncode(body);
-      _stompClient.send(
-          destination: getSTOMPDestination(exchangeName, binding, queue),
-          body: body);
-    } else {
-      amqp.Channel channel = await _amqpClient.channel();
-      amqp.Exchange exchange = await channel.exchange(
-          exchangeName, parseAMQPExchangeType(exchangeType),
-          durable: durable);
-      exchange.publish(body, binding);
-    }
-  }
-
-  void close() {
-    _amqpClient?.close();
-    if (_stompUnsubscribeFunction != null) {
-      _stompUnsubscribeFunction();
-    }
-    _stompClient?.deactivate();
-    _controller?.close();
-  }
+  void close(StreamController<dynamic> controller);
 }

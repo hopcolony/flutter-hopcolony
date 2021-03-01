@@ -1,7 +1,10 @@
 import 'package:hop_init/hop_init.dart' as init;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:hop_topic/src/amqp.dart';
 import 'client.dart';
 import 'queue.dart';
 import 'exchange.dart';
+import 'stomp.dart';
 
 class HopTopic {
   init.Project project;
@@ -21,7 +24,7 @@ class HopTopic {
         authenticator: authenticator);
 
     if (_client == null) {
-      _client = HopTopicClient(settings: connectionSettings);
+      _client = kIsWeb ? STOMPHopTopicClient(connectionSettings) : AMQPHopTopicClient(connectionSettings.toAMQP);
     }
   }
 
@@ -32,13 +35,10 @@ class HopTopic {
       HopTopicQueue(_client, binding: name, name: name);
 
   HopTopicExchange exchange(String name,
-          {create = true, type = ExchangeType.TOPIC}) =>
+          {create = false, type = ExchangeType.TOPIC}) =>
       HopTopicExchange(_client, name, create: create, type: type);
 
   HopTopicQueue topic(String name) =>
       HopTopicQueue(_client, exchange: "amq.topic", binding: name);
-
-  void close() {
-    _client.close();
-  }
 }
+

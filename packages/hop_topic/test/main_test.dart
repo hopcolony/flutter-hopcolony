@@ -31,7 +31,7 @@ void main() async {
   test('Subscriber Publisher String', () async {
     StreamSubscription<dynamic> subscription = HopTopic.instance
         .topic(topic)
-        .listen(outputType: OutputType.STRING)
+        .subscribe(outputType: OutputType.STRING)
         .listen((msg) => expect(msg, dataString));
     await Future.delayed(Duration(milliseconds: 100));
     HopTopic.instance.topic(topic).send(dataString);
@@ -42,11 +42,28 @@ void main() async {
   test('Subscriber Publisher Json', () async {
     StreamSubscription<dynamic> subscription = HopTopic.instance
         .topic(topic)
-        .listen(outputType: OutputType.JSON)
+        .subscribe(outputType: OutputType.JSON)
         .listen((msg) => expect(msg, dataJson));
     await Future.delayed(Duration(milliseconds: 100));
     HopTopic.instance.topic(topic).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
     subscription.cancel();
+  });
+
+  test('Subscriber Publisher queue', () async {
+    StreamSubscription<dynamic> subscription1 = HopTopic.instance
+        .queue(topic)
+        .subscribe(outputType: OutputType.JSON)
+        .listen((msg) => expect(msg, dataJson));
+    StreamSubscription<dynamic> subscription2 = HopTopic.instance
+        .queue(topic)
+        .subscribe(outputType: OutputType.JSON)
+        .listen((msg) => expect(msg, dataJson));
+    await Future.delayed(Duration(milliseconds: 100));
+    HopTopic.instance.queue(topic).send(dataJson);
+    HopTopic.instance.queue(topic).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 300));
+    subscription1.cancel();
+    subscription2.cancel();
   });
 }

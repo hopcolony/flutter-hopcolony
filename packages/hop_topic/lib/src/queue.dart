@@ -5,28 +5,22 @@ class HopTopicQueue {
   final HopTopicClient _client;
   final String exchange, binding, name;
   final ExchangeType exchangeType;
-  final bool exclusive, autoDelete, durable;
+  final bool durable, exclusive, autoDelete, exchangeIsDurable;
   HopTopicQueue(
     this._client, {
     this.exchange = "",
-    this.binding = "#",
-    this.name = "",
     this.exchangeType = ExchangeType.TOPIC,
+    this.exchangeIsDurable = false,
+    this.binding = "",
+    this.name = "",
+    this.durable = false,
     this.exclusive = false,
     this.autoDelete = true,
-    this.durable = true,
   });
 
-  Stream<dynamic> listen({OutputType outputType = OutputType.STRING}) =>
-      _client.listen(exchange, exchangeType, binding, name, exclusive,
-          autoDelete, outputType,
-          durable: durable);
+  Stream<dynamic> subscribe({OutputType outputType = OutputType.STRING}) =>
+      _client.subscribe(exchange, exchangeType, binding, name, durable, exclusive, autoDelete, outputType, exchangeIsDurable);
 
-  void send(dynamic body) => _client.send(body, exchange,
-      exchangeType: exchangeType,
-      binding: binding,
-      queue: name,
-      durable: durable);
-
-  void close() => _client.close();
+  void send(dynamic body) =>
+      _client.send(body, exchange, exchangeType: exchangeType, binding: binding, queueName: name, exchangeIsDurable: exchangeIsDurable);
 }
