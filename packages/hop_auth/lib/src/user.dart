@@ -2,8 +2,8 @@ import 'package:hop_auth/src/token.dart';
 
 class HopUser {
   final DateTime registerTs, lastLoginTs;
+  final List<String> projects;
   final String uuid, email, name, picture, locale;
-  final Token idToken;
   final bool isAnonymous;
 
   HopUser({
@@ -12,9 +12,9 @@ class HopUser {
     this.uuid,
     this.email,
     this.name,
+    this.projects,
     this.picture,
     this.locale,
-    this.idToken,
     this.isAnonymous,
   });
 
@@ -24,9 +24,11 @@ class HopUser {
         uuid: json["uuid"],
         email: json["email"],
         name: json["name"],
+        projects: (json["projects"] as List)
+            .map((dynamic project) => project.toString())
+            .toList(),
         picture: json["picture"],
         locale: json["locale"],
-        idToken: Token(json["idToken"]),
         isAnonymous: json["isAnonymous"],
       );
 
@@ -36,9 +38,9 @@ class HopUser {
         "uuid": uuid,
         "email": email,
         "name": name,
+        "projects": projects,
         "picture": picture,
         "locale": locale,
-        "idToken": idToken.rawValue,
         "isAnonymous": isAnonymous,
       };
 }

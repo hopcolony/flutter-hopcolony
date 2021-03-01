@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hop_auth/hop_auth.dart';
@@ -23,7 +24,30 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: Center(child: Text(_auth.currentUser.json.toString())),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(imageUrl: _auth.currentUser.picture),
+            ),
+            SizedBox(height: 10),
+            Text(
+              _auth.currentUser.name,
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              _auth.currentUser.email,
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 10),
+            Text("Projects: ${_auth.currentUser.projects.toString()}"),
+          ],
+        ),
+      ),
     );
   }
 }

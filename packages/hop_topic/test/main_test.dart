@@ -12,6 +12,7 @@ void main() async {
   final String topicCat = "topic-cat";
   final String queueName = "processing-queue";
   final String broadcastExchange = "broadcast";
+  final String topicExchange = "oauth";
   final String dataString = "Test Message";
   final Map<String, dynamic> dataJson = {"data": "Testing Hop Topics!"};
 
@@ -92,6 +93,21 @@ void main() async {
     });
     await Future.delayed(Duration(milliseconds: 100));
     HopTopic.instance.exchange(broadcastExchange).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.closeOpenConnections();
+  });
+
+  test('Subscriber Publisher Topic Over Exchange', () async {
+    HopTopic.instance
+        .exchange(topicExchange)
+        .topic(topicCat)
+        .subscribe(outputType: OutputType.JSON)
+        .listen((msg) {
+      // print(msg);
+      expect(msg, dataJson);
+    });
+    await Future.delayed(Duration(milliseconds: 100));
+    HopTopic.instance.exchange(topicExchange).topic(topicCat).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
     HopTopic.instance.closeOpenConnections();
   });

@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result.success)
       Navigator.of(context).popAndPushNamed('/home');
     else
-      print(result.reason);
+      print("[ERROR FROM LOGIN] ${result.reason}");
   }
 
   @override

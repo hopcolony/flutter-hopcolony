@@ -3,6 +3,7 @@ import 'package:hop_init/hop_init.dart' as init;
 import 'package:hop_topic_example/broadcast.dart';
 import 'package:hop_topic_example/queues.dart';
 import 'package:hop_topic_example/topics.dart';
+import 'package:hop_topic_example/topics_over_exchange.dart';
 
 void main() async {
   await init.initialize();
@@ -32,6 +33,7 @@ class Home extends StatelessWidget {
           children: [
             QueueRow(),
             TopicsRow(),
+            TopicsExchangeRow(),
             BroadcastRow(),
           ],
         ),
