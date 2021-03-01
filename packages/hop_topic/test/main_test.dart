@@ -4,11 +4,14 @@ import 'package:hop_topic/hop_topic.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String userName = "console@hopcolony.io";
-  final String projectName = "console";
+  final String userName = "core@hopcolony.io";
+  final String projectName = "core";
   final String tokenName = "supersecret";
 
-  final String topic = "test-topic2";
+  final String topicDog = "topic-dog";
+  final String topicCat = "topic-cat";
+  final String queueName = "processing-queue";
+  final String broadcastExchange = "broadcast";
   final String dataString = "Test Message";
   final Map<String, dynamic> dataJson = {"data": "Testing Hop Topics!"};
 
@@ -28,42 +31,68 @@ void main() async {
     expect(HopTopic.instance.identity, project.config.identity);
   });
 
-  test('Subscriber Publisher String', () async {
-    StreamSubscription<dynamic> subscription = HopTopic.instance
-        .topic(topic)
+  test('Subscriber Publisher Topic Dog', () async {
+    HopTopic.instance
+        .topic(topicDog)
         .subscribe(outputType: OutputType.STRING)
-        .listen((msg) => expect(msg, dataString));
+        .listen((msg) {
+      expect(msg, dataString);
+    });
     await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.topic(topic).send(dataString);
+    HopTopic.instance.topic(topicDog).send(dataString);
     await Future.delayed(Duration(milliseconds: 300));
-    subscription.cancel();
+    HopTopic.instance.closeOpenConnections();
   });
 
-  test('Subscriber Publisher Json', () async {
-    StreamSubscription<dynamic> subscription = HopTopic.instance
-        .topic(topic)
+  test('Subscriber Publisher Topic Cat', () async {
+    HopTopic.instance
+        .topic(topicCat)
         .subscribe(outputType: OutputType.JSON)
-        .listen((msg) => expect(msg, dataJson));
+        .listen((msg) {
+      expect(msg, dataJson);
+    });
     await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.topic(topic).send(dataJson);
+    HopTopic.instance.topic(topicCat).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
-    subscription.cancel();
+    HopTopic.instance.closeOpenConnections();
   });
 
-  test('Subscriber Publisher queue', () async {
-    StreamSubscription<dynamic> subscription1 = HopTopic.instance
-        .queue(topic)
+  test('Subscriber Publisher Queue', () async {
+    HopTopic.instance
+        .queue(queueName)
         .subscribe(outputType: OutputType.JSON)
-        .listen((msg) => expect(msg, dataJson));
-    StreamSubscription<dynamic> subscription2 = HopTopic.instance
-        .queue(topic)
+        .listen((msg) {
+      expect(msg, dataJson);
+    });
+    HopTopic.instance
+        .queue(queueName)
         .subscribe(outputType: OutputType.JSON)
-        .listen((msg) => expect(msg, dataJson));
+        .listen((msg) {
+      expect(msg, dataJson);
+    });
     await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.queue(topic).send(dataJson);
-    HopTopic.instance.queue(topic).send(dataJson);
+    HopTopic.instance.queue(queueName).send(dataJson);
+    HopTopic.instance.queue(queueName).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
-    subscription1.cancel();
-    subscription2.cancel();
+    HopTopic.instance.closeOpenConnections();
+  });
+
+  test('Subscriber Publisher Broadcast', () async {
+    HopTopic.instance
+        .exchange(broadcastExchange)
+        .subscribe(outputType: OutputType.JSON)
+        .listen((msg) {
+      expect(msg, dataJson);
+    });
+    HopTopic.instance
+        .exchange(broadcastExchange)
+        .subscribe(outputType: OutputType.JSON)
+        .listen((msg) {
+      expect(msg, dataJson);
+    });
+    await Future.delayed(Duration(milliseconds: 100));
+    HopTopic.instance.exchange(broadcastExchange).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.closeOpenConnections();
   });
 }

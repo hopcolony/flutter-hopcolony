@@ -5,12 +5,15 @@ import 'package:random_color/random_color.dart';
 class TopicsRow extends StatelessWidget {
   final _topics = HopTopic.instance;
 
+  final String topicDog = "topic-dog";
+  final String topicCat = "topic-cat";
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         StreamBuilder<dynamic>(
-          stream: _topics.topic("topic-dog").subscribe(),
+          stream: _topics.topic(topicDog).subscribe(),
           builder: (_, snapshot) {
             return Container(
               width: 100,
@@ -26,7 +29,7 @@ class TopicsRow extends StatelessWidget {
           },
         ),
         StreamBuilder<dynamic>(
-          stream: _topics.topic("topic-cat").subscribe(),
+          stream: _topics.topic(topicCat).subscribe(),
           builder: (_, snapshot) {
             return Container(
               width: 100,
@@ -42,7 +45,7 @@ class TopicsRow extends StatelessWidget {
           },
         ),
         StreamBuilder<dynamic>(
-          stream: _topics.topic("topic-dog").subscribe(),
+          stream: _topics.topic(topicDog).subscribe(),
           builder: (_, snapshot) {
             return Container(
               width: 100,
@@ -58,12 +61,12 @@ class TopicsRow extends StatelessWidget {
           },
         ),
         TextButton(
-          onPressed: () => _topics.topic("topic-dog").send("Hello"),
-          child: Text("Send to DOG"),
+          onPressed: () => _topics.topic(topicDog).send("Hello"),
+          child: Text("Send to DOG Topic"),
         ),
         TextButton(
-          onPressed: () => _topics.topic("topic-cat").send("Hello"),
-          child: Text("Send to CAT"),
+          onPressed: () => _topics.topic(topicCat).send("Hello"),
+          child: Text("Send to CAT topic"),
         ),
       ],
     );

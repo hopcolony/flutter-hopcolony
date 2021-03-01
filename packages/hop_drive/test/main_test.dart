@@ -6,8 +6,8 @@ import 'package:hop_init/hop_init.dart' as init;
 import 'img.dart' as asset;
 
 void main() async {
-  final String userName = "console@hopcolony.io";
-  final String projectName = "console";
+  final String userName = "core@hopcolony.io";
+  final String projectName = "core";
   final String tokenName = "supersecret";
 
   final String bucket = "hop-test";

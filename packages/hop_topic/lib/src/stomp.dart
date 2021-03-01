@@ -24,6 +24,7 @@ class STOMPHopTopicClient extends HopTopicClient {
             if (!connected.isCompleted) connected.complete();
           }),
     );
+    _stompClient.activate();
   }
 
   String getSTOMPDestination(String exchange, String binding, String queue) {
@@ -42,9 +43,7 @@ class STOMPHopTopicClient extends HopTopicClient {
     return destination;
   }
 
-  Map<StreamController<dynamic>, Function> _subscriptions = {};
-
-  Future<void> onListen(
+  Future<Function> onListen(
     StreamController<dynamic> controller,
     String exchangeName,
     ExchangeType exchangeType,
@@ -56,7 +55,6 @@ class STOMPHopTopicClient extends HopTopicClient {
     bool queueAutoDelete,
     OutputType outputType,
   ) async {
-    _stompClient.activate();
     await connected.future;
 
     Map<String, String> headers = {
@@ -70,10 +68,12 @@ class STOMPHopTopicClient extends HopTopicClient {
       destination: getSTOMPDestination(exchangeName, binding, queueName),
       headers: headers,
       callback: (frame) =>
-          controller.add(HopTopicMessage.fromSTOMP(frame, outputType)),
+          controller?.add(HopTopicMessage.fromSTOMP(frame, outputType)),
     );
 
-    _subscriptions[controller] = _stompUnsubscribeFunction;
+    return () {
+      _stompUnsubscribeFunction();
+    };
   }
 
   Future<void> send(
@@ -82,11 +82,9 @@ class STOMPHopTopicClient extends HopTopicClient {
     String binding = "",
     String queueName = "",
     ExchangeType exchangeType = ExchangeType.TOPIC,
-    bool exchangeIsDurable = false,
+    bool exchangeIsDurable = true,
   }) async {
-    _stompClient.activate();
     await connected.future;
-    print(getSTOMPDestination(exchangeName, binding, queueName));
     if (body is Map) body = jsonEncode(body);
     _stompClient.send(
       destination: getSTOMPDestination(exchangeName, binding, queueName),
@@ -94,8 +92,7 @@ class STOMPHopTopicClient extends HopTopicClient {
     );
   }
 
-  void close(StreamController<dynamic> controller) {
-    final unsubscribeFn = _subscriptions[controller];
-    if(unsubscribeFn != null) unsubscribeFn();
+  void close() {
+    _stompClient.deactivate();
   }
 }

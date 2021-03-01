@@ -22,9 +22,7 @@ class AMQPHopTopicClient extends HopTopicClient {
     }
   }
 
-  Map<StreamController<dynamic>, amqp.Consumer> _subscriptions = {};
-
-  Future<void> onListen(
+  Future<Function> onListen(
     StreamController<dynamic> controller,
     String exchangeName,
     ExchangeType exchangeType,
@@ -37,7 +35,6 @@ class AMQPHopTopicClient extends HopTopicClient {
     OutputType outputType,
   ) async {
     amqp.Channel channel = await _amqpClient.channel();
-
     amqp.Queue queue = await channel.queue(queueName,
         exclusive: queueIsExclusive, autoDelete: queueAutoDelete);
 
@@ -50,9 +47,11 @@ class AMQPHopTopicClient extends HopTopicClient {
 
     amqp.Consumer consumer = await queue.consume();
     consumer.listen((amqp.AmqpMessage message) =>
-        controller.add(HopTopicMessage.fromAMQP(message, outputType)));
+        controller?.add(HopTopicMessage.fromAMQP(message, outputType)));
 
-     _subscriptions[controller] = null;
+    return () {
+      channel.close();
+    };
   }
 
   Future<void> send(
@@ -61,17 +60,17 @@ class AMQPHopTopicClient extends HopTopicClient {
     String binding = "",
     String queueName = "",
     ExchangeType exchangeType = ExchangeType.TOPIC,
-    bool exchangeIsDurable = false,
+    bool exchangeIsDurable = true,
   }) async {
     amqp.Channel channel = await _amqpClient.channel();
     amqp.Exchange exchange = await channel.exchange(
         exchangeName, parseAMQPExchangeType(exchangeType),
         durable: exchangeIsDurable);
     exchange.publish(body, binding);
+    channel.close();
   }
 
-  void close(StreamController<dynamic> controller) {
-    final consumer = _subscriptions[controller];
-    if(consumer != null) consumer.cancel();
+  void close() {
+    _amqpClient.close();
   }
 }

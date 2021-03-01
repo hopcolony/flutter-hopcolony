@@ -5,12 +5,14 @@ import 'package:random_color/random_color.dart';
 class QueueRow extends StatelessWidget {
   final _topics = HopTopic.instance;
 
+  final String queueName = "processing-queue";
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         StreamBuilder<dynamic>(
-          stream: _topics.queue("queue-test").subscribe(),
+          stream: _topics.queue(queueName).subscribe(),
           builder: (_, snapshot) {
             return Container(
               width: 100,
@@ -25,7 +27,7 @@ class QueueRow extends StatelessWidget {
           },
         ),
         StreamBuilder<dynamic>(
-          stream: _topics.queue("queue-test").subscribe(),
+          stream: _topics.queue(queueName).subscribe(),
           builder: (_, snapshot) {
             return Container(
               width: 100,
@@ -40,7 +42,7 @@ class QueueRow extends StatelessWidget {
           },
         ),
         TextButton(
-          onPressed: () => _topics.queue("queue-test").send("Hello"),
+          onPressed: () => _topics.queue(queueName).send("Hello"),
           child: Text("Queue Load Balancing"),
         ),
       ],

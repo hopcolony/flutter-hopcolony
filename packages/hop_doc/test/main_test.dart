@@ -3,8 +3,8 @@ import 'package:hop_doc/hop_doc.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String userName = "console@hopcolony.io";
-  final String projectName = "console";
+  final String userName = "core@hopcolony.io";
+  final String projectName = "core";
   final String tokenName = "supersecret";
 
   final String index = ".hop.tests";

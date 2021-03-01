@@ -75,11 +75,24 @@ class HopTopicConnectionSettings {
       authProvider: authenticator.toAMQP);
 }
 
-abstract class HopTopicClient {
-  // Stream
-  List<StreamController<dynamic>> _controllers = [];
+class OpenConnection {
+  final String queue, exchange;
+  final StreamController<dynamic> controller;
+  Function unsubscribeFunction;
+  OpenConnection(this.queue, this.exchange, this.controller);
 
-  Future<void> onListen(
+  void close() {
+    // print("Closing connection with queue ($queue) and exchange ($exchange)");
+    controller?.close();
+    if (unsubscribeFunction != null) unsubscribeFunction();
+  }
+
+  String toString() =>
+      "Opened connection with queue ($queue) and exchange ($exchange)";
+}
+
+abstract class HopTopicClient {
+  Future<Function> onListen(
     StreamController<dynamic> controller,
     String exchangeName,
     ExchangeType exchangeType,
@@ -93,6 +106,7 @@ abstract class HopTopicClient {
   );
 
   Stream<dynamic> subscribe(
+    Function addOpenConnection,
     String exchangeName,
     ExchangeType exchangeType,
     String binding,
@@ -104,21 +118,26 @@ abstract class HopTopicClient {
     bool exchangeIsDurable,
   ) {
     StreamController<dynamic> controller;
+    OpenConnection openConnection =
+        OpenConnection(queueName, exchangeName, controller);
     controller = StreamController<dynamic>(
-      onListen: () => onListen(
-          controller,
-          exchangeName,
-          exchangeType,
-          exchangeIsDurable,
-          binding,
-          queueName,
-          queueIsDurable,
-          queueIsExclusive,
-          queueAutoDelete,
-          outputType),
-      onCancel: () => close(controller),
+      onListen: () async {
+        Function unsubscribeFunction = await onListen(
+            controller,
+            exchangeName,
+            exchangeType,
+            exchangeIsDurable,
+            binding,
+            queueName,
+            queueIsDurable,
+            queueIsExclusive,
+            queueAutoDelete,
+            outputType);
+        openConnection.unsubscribeFunction = unsubscribeFunction;
+      },
+      onCancel: openConnection.close,
     );
-    _controllers.add(controller);
+    addOpenConnection(openConnection);
     return controller.stream;
   }
 
@@ -128,8 +147,8 @@ abstract class HopTopicClient {
     String binding = "",
     String queueName = "",
     ExchangeType exchangeType = ExchangeType.TOPIC,
-    bool exchangeIsDurable = false,
+    bool exchangeIsDurable = true,
   });
 
-  void close(StreamController<dynamic> controller);
+  void close();
 }
