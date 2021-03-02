@@ -29,7 +29,6 @@ class HopAuth {
             "uuid": uuid,
             "email": credential.email,
             "name": credential.name,
-            "projects": [],
             "picture": credential.picture,
             "locale": credential.locale,
             "isAnonymous": false,
@@ -40,13 +39,18 @@ class HopAuth {
     return AuthResult(success: true, user: currentUser);
   }
 
-  Future<AuthResult> signInWithHopcolony() async {
-    Uri uri = Uri.parse("https://accounts.hopcolony.io/").replace(
-        queryParameters: {
-          "redirect_uri": window.location.origin,
-          "client_id": init.config.identity
-        });
+  Future<AuthResult> signInWithHopcolony({List<String> scopes}) async {
+    Map<String, dynamic> queryParameters = {"client_id": init.config.identity};
+    if (scopes != null) {
+      queryParameters["scope"] = scopes.join(',');
+    }
+
+    // Open OAuth in another window
+    Uri uri = Uri.parse("https://accounts.hopcolony.io")
+        // Uri uri = Uri.parse("http://localhost:8080/o/oauth2/auth")
+        .replace(queryParameters: queryParameters);
     this._oauthWindow = window.open(uri.toString(), "Hopcolony OAuth2");
+
     // Receive confirmation via topics
     Completer<AuthResult> loginCompleted = Completer<AuthResult>();
     StreamSubscription subscription = HopTopic.instance
@@ -57,6 +61,7 @@ class HopAuth {
       if (msg["success"]) {
         HopAuthCredential credential =
             HopAuthProvider.credential(idToken: msg["idToken"]);
+        print(credential.idToken.payload);
         AuthResult result = await signInWithCredential(credential);
         loginCompleted.complete(result);
       } else {

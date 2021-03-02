@@ -43,8 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
               _auth.currentUser.email,
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 10),
-            Text("Projects: ${_auth.currentUser.projects.toString()}"),
           ],
         ),
       ),

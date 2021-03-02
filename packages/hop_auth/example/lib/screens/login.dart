@@ -10,7 +10,8 @@ class _LoginScreenState extends State<LoginScreen> {
   HopAuth _auth = HopAuth.instance;
 
   Future<void> signInWithHopcolony() async {
-    final AuthResult result = await _auth.signInWithHopcolony();
+    final AuthResult result =
+        await _auth.signInWithHopcolony(scopes: ["projects"]);
     if (result.success)
       Navigator.of(context).popAndPushNamed('/home');
     else
