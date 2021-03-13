@@ -5,17 +5,22 @@ import 'index_reference.dart';
 import 'package:dio/dio.dart';
 
 class HopDoc {
-  init.Project project;
+  init.Project _project;
   HopDocClient client;
   static final HopDoc instance = HopDoc._internal();
   factory HopDoc() => instance;
   HopDoc._internal({init.Project project}) {
-    if (client == null) {
-      project = project ?? init.project;
-      // App is initialized from Hop Init
+    if(project != null) {
+      _project = project;
       client = HopDocClient(project: project);
     }
+    else if (client == null) {
+      _project = init.project;
+      client = HopDocClient(project: _project);
+    }
   }
+
+  init.Project get project => _project;
 
   factory HopDoc.fromProject(init.Project project) =>
       HopDoc._internal(project: project);

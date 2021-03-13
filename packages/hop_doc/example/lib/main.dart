@@ -7,12 +7,7 @@ void main() async {
   runApp(Root());
 }
 
-class Root extends StatefulWidget {
-  @override
-  RootState createState() => RootState();
-}
-
-class RootState extends State<Root> {
+class Root extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
