@@ -72,5 +72,5 @@ class HopDocClient {
   Future<Response> delete(String path) async => dio.delete(_baseUrl + path);
 
   Future<WebSocket> connect(String path) async =>
-      WebSocket.connect("wss://$host/ws$path");
+      WebSocket.connect("wss://$host:$port/$identity/ws$path");
 }
