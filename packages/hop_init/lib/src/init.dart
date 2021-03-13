@@ -4,7 +4,7 @@ import "dart:convert";
 import 'package:yaml/yaml.dart';
 import 'package:flutter/material.dart';
 
-Project _project;
+Map<String, Project> _projects;
 
 class InvalidConfig implements Exception {
   String cause;
@@ -95,25 +95,34 @@ class Project {
 }
 
 Future<Project> initialize(
-    {String configFile = ".hop.config",
+    {String name = "DEFAULT",
+    String configFile = ".hop.config",
     String username,
     String project,
     String token}) async {
   WidgetsFlutterBinding.ensureInitialized();
   Completer completer = Completer();
-  _project = Project(completer,
+  final Project proj = Project(completer,
       configFile: configFile,
       username: username,
       project: project,
       token: token);
   await completer.future;
-  return _project;
+  _projects[name] = proj;
+  return proj;
 }
 
 Project get project {
-  assert(_project != null,
-      "You need to initialize the project first with init.initialize()");
-  return _project;
+  final name = "DEFAULT";
+  assert(_projects.containsKey(name),
+      "Project DEFAULT does not exist. You need to initialize the project first with init.initialize()");
+  return _projects[name];
+}
+
+Project getProject(String name) {
+  assert(_projects.containsKey(name),
+      "Project $name does not exist. You need to initialize the project first with init.initialize(project: $name)");
+  return _projects[name];
 }
 
 HopConfig get config {

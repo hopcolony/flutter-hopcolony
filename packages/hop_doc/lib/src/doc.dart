@@ -9,13 +9,16 @@ class HopDoc {
   HopDocClient client;
   static final HopDoc instance = HopDoc._internal();
   factory HopDoc() => instance;
-  HopDoc._internal() {
+  HopDoc._internal({init.Project project}) {
     if (client == null) {
-      project = init.project;
+      project = project ?? init.project;
       // App is initialized from Hop Init
-      client = HopDocClient(project: init.project);
+      client = HopDocClient(project: project);
     }
   }
+
+  factory HopDoc.fromProject(init.Project project) =>
+      HopDoc._internal(project: project);
 
   Future<Map<String, dynamic>> get status async {
     try {
