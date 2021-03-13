@@ -4,7 +4,7 @@ import "dart:convert";
 import 'package:yaml/yaml.dart';
 import 'package:flutter/material.dart';
 
-Map<String, Project> _projects;
+Map<String, Project> _projects = {};
 
 class InvalidConfig implements Exception {
   String cause;
