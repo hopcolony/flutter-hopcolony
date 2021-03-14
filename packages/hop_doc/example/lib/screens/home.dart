@@ -80,15 +80,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Luis Paarup"),
+        title: Text("Hop Docs"),
       ),
       body: Column(
         children: [
-          FutureBuilder<DocumentSnapshot>(
-              future: instance.index("profile").document("1234").get(),
+          StreamBuilder<DocumentSnapshot>(
+              stream: instance.index("profile").document("1234").stream(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return Column(children: [
+                    if (snapshot.data.success)
+                      Text(snapshot.data.doc.source.toString()),
                     TextButton(onPressed: update, child: Text("Update")),
                     TextButton(onPressed: add, child: Text("Add")),
                     TextButton(onPressed: delete, child: Text("Delete")),

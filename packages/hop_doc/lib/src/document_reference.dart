@@ -66,8 +66,14 @@ class DocumentReference {
         ws.stream.listen(
           (data) {
             Map<String, dynamic> doc = jsonDecode(data);
-            _cachedDocument.doc.version = doc["_version"];
-            _cachedDocument.doc.source = doc["_source"];
+            if (_cachedDocument.doc == null) {
+              _cachedDocument.success = true;
+              _cachedDocument.doc = Document.fromJson(doc);
+            } else {
+              _cachedDocument.doc.version = doc["_version"];
+              _cachedDocument.doc.source = doc["_source"];
+            }
+
             controller.add(_cachedDocument);
           },
           onDone: () => print('[+]Closed connection to $_index/$_id stream'),
