@@ -118,4 +118,11 @@ class Document {
         index = json["_index"],
         id = json["_id"],
         version = json["_version"];
+
+  Map<String, dynamic> get json => {
+        "_source": source,
+        "_id": id,
+        "_index": index,
+        "_version": version,
+      };
 }

@@ -83,16 +83,23 @@ class QueryableReference {
     return IndexSnapshot(_cachedIndex.values.toList(), success: true);
   }
 
-  bool docInQuery(doc) {
+  bool docInQuery(Map<String, dynamic> doc) {
     for (Map query in compoundBody["query"]["bool"]["must"]) {
       if (query.containsKey("match")) {
         final match = query["match"] as Map;
         final key = match.keys.first;
         final value = match.values.first;
-        if ((doc["_source"] as Map).containsKey(key) &&
-            doc["_source"][key] != value) {
-          return false;
+
+        dynamic source = (doc["_source"] as Map);
+        for (String token in key.split(".")) {
+          if (source.containsKey(token)) {
+            source = source[token];
+          } else {
+            return false;
+          }
         }
+        if (source != value) return false;
+
       } else if (query.containsKey("range")) {
         // TODO
       }
@@ -130,9 +137,16 @@ class QueryableReference {
     });
 
     void onListen() async {
-      IndexSnapshot current = await get();
-      controller.add(current);
-      _cachedIndex = {for (Document doc in current.docs) doc.id: doc};
+      IndexSnapshot snapshot = await get();
+      _cachedIndex = {};
+      if (snapshot.success) {
+        for (Document doc in snapshot.docs) {
+          if (docInQuery(doc.json)) {
+            _cachedIndex[doc.id] = doc;
+          }
+        }
+      }
+      controller.add(cachedToIndexSnapshot);
     }
 
     controller = StreamController<IndexSnapshot>(
