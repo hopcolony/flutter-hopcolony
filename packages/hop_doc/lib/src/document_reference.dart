@@ -111,13 +111,15 @@ class Document {
   String index;
   String id;
   int version;
-  Document(this.source, {this.index, this.id, this.version});
+  List sort;
+  Document(this.source, {this.index, this.id, this.version, this.sort});
 
   Document.fromJson(Map<String, dynamic> json)
       : source = json["_source"],
         index = json["_index"],
         id = json["_id"],
-        version = json["_version"];
+        version = json["_version"],
+        sort = json["sort"];
 
   Map<String, dynamic> get json => {
         "_source": source,

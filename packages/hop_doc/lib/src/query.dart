@@ -1,4 +1,6 @@
+import 'package:hop_doc/hop_doc.dart';
 import 'package:hop_doc/src/geo.dart';
+import 'package:hop_doc/src/utils.dart';
 import 'doc.dart';
 import 'queryable_reference.dart';
 
@@ -9,7 +11,11 @@ enum QueryType {
   IS_LESS_THAN,
   IS_LESS_THAN_OR_EQUAL_TO,
   IS_WITHIN_RADIUS,
-  IS_WITHIN_BOX
+  IS_WITHIN_BOX,
+  START_AT,
+  START_AFTER,
+  LIMIT,
+  ORDER_BY
 }
 
 class GeoDistanceQuery {
@@ -29,6 +35,8 @@ class Query extends QueryableReference {
   String _field;
   QueryType _queryType;
   var _value;
+  bool nanoDate; // Used to sort by timestamp if timestamp in nanoseconds
+  bool addId; // Used to indicate when to add the id when sorting
 
   Query(
     HopDocClient client,
@@ -42,7 +50,15 @@ class Query extends QueryableReference {
     int isLessThanOrEqualTo,
     GeoDistanceQuery isWithinRadius,
     GeoBoxQuery isWithinBox,
-  }) : super(client, index) {
+    int at,
+    Document after,
+    int limit,
+    String orderBy,
+    this.addId,
+    this.nanoDate,
+  })  : assert((at == null || after == null) == true,
+            "You cannot set both at and after in start filter method on a query"),
+        super(client, index) {
     if (isEqualTo != null) {
       this._queryType = QueryType.IS_EQUAL_TO;
       this._value = isEqualTo;
@@ -64,6 +80,18 @@ class Query extends QueryableReference {
     } else if (isWithinBox != null) {
       this._queryType = QueryType.IS_WITHIN_BOX;
       this._value = isWithinBox;
+    } else if (at != null) {
+      this._queryType = QueryType.START_AT;
+      this._value = at;
+    } else if (after != null) {
+      this._queryType = QueryType.START_AFTER;
+      this._value = after;
+    } else if (limit != null) {
+      this._queryType = QueryType.LIMIT;
+      this._value = limit;
+    } else if (orderBy != null) {
+      this._queryType = QueryType.ORDER_BY;
+      this._value = orderBy;
     }
   }
 
@@ -151,6 +179,57 @@ class Query extends QueryableReference {
         {
           (_compoundQuery["query"]["bool"]["filter"] as List)
               .add(geoBoxBody(_value));
+        }
+        break;
+      case QueryType.START_AT:
+        {
+          _compoundQuery["from"] = _value;
+        }
+        break;
+      case QueryType.START_AFTER:
+        {
+          final Document doc = _value;
+
+          // doc.sort may have truncated the timestamp value is it is in nanoseconds range...
+          // List searchAfter = doc.sort ?? [];
+
+          // In order to search after a timestamp in the ns range, compute the nanosecondsSinceEpoch
+          // from the field itself, not from the values returned by ES.
+          List searchAfter = [];
+
+          assert(doc.source != null,
+              "Document provided to start after query must have a non-null source");
+          try {
+            for (Map<String, dynamic> sort in _compoundQuery["sort"]) {
+              final String key = sort.keys.toList()[0];
+              if (key == "_id") {
+                searchAfter.add(doc.id);
+                continue;
+              }
+              dynamic value = doc.source[key];
+              // Convert to timestamp if its a time value
+              try {
+                value = this.nanoDate
+                    ? TimeHelper.nanosecondsSinceEpoch(value)
+                    : TimeHelper.millisecondsSinceEpoch(value);
+              } catch (e) {}
+
+              searchAfter.add(value);
+            }
+          } catch (e) {}
+
+          _compoundQuery["search_after"] = searchAfter;
+        }
+        break;
+      case QueryType.LIMIT:
+        {
+          _compoundQuery["size"] = _value;
+        }
+        break;
+      case QueryType.ORDER_BY:
+        {
+          (_compoundQuery["sort"] as List).add({_field: _value});
+          if (this.addId) (_compoundQuery["sort"] as List).add({"_id": "asc"});
         }
         break;
     }

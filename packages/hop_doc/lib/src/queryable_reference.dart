@@ -22,13 +22,13 @@ class QueryableReference {
   Map<String, dynamic> get compoundBody {
     return {
       "size": 100,
-      "from": 0,
       "query": {
         "bool": {
           "must": [],
           "filter": [],
         }
-      }
+      },
+      "sort": [],
     };
   }
 
@@ -64,11 +64,38 @@ class QueryableReference {
             topLeft: topLeft, bottomRight: bottomRight, field: field),
       );
 
-  Future<IndexSnapshot> get({int size = 100, int from = 0}) async {
+  Query start({int at, Document after, bool nanoDate}) => Query(
+        client,
+        index,
+        compoundBody,
+        "",
+        at: at,
+        after: after,
+        nanoDate: nanoDate,
+      );
+
+  Query limit(int number) => Query(
+        client,
+        index,
+        compoundBody,
+        "",
+        limit: number,
+      );
+
+  Query orderBy({String field, String order = "asc", bool addId: true}) =>
+      Query(
+        client,
+        index,
+        compoundBody,
+        field,
+        orderBy: order,
+        addId: addId,
+      );
+
+  Future<IndexSnapshot> get({int size}) async {
     try {
       Map data = compoundBody;
-      data["size"] = size;
-      data["from"] = from;
+      if (size != null) data["size"] = size;
       Response response = await client.post("/$index/_search", data: data);
       final docs = (response.data["hits"]["hits"] as List)
           .map((doc) => Document.fromJson(doc))
@@ -99,7 +126,6 @@ class QueryableReference {
           }
         }
         if (source != value) return false;
-
       } else if (query.containsKey("range")) {
         // TODO
       }
