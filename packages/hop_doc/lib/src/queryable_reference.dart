@@ -64,7 +64,7 @@ class QueryableReference {
             topLeft: topLeft, bottomRight: bottomRight, field: field),
       );
 
-  Query start({int at, Document after, bool nanoDate}) => Query(
+  Query start({int at, Document after, bool nanoDate: false}) => Query(
         client,
         index,
         compoundBody,

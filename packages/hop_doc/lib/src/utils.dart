@@ -65,7 +65,12 @@ class TimeHelper {
       nanoseconds += hour * SECONDS_IN_HOUR;
       nanoseconds += minute * SECONDS_IN_MINUTE;
       nanoseconds += second;
-      return nanoseconds.toString() + ns.toString();
+
+      String nsString = ns.toString();
+      int len = nsString.length;
+      for (int i = 0; i < 9 - len; i++) nsString = "0" + nsString;
+      
+      return nanoseconds.toString() + nsString;
     } else {
       throw FormatException("Invalid date format", date);
     }
