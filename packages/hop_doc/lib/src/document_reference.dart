@@ -113,7 +113,7 @@ class Document {
   int version;
   List sort;
   Document(this.source, {this.index, this.id, this.version, this.sort});
-
+  
   Document.fromJson(Map<String, dynamic> json)
       : source = json["_source"],
         index = json["_index"],

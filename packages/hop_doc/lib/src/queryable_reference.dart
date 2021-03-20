@@ -92,9 +92,10 @@ class QueryableReference {
         addId: addId,
       );
 
-  Future<IndexSnapshot> get({int size}) async {
+  Future<IndexSnapshot> get({int size, bool onlyIds: false}) async {
     try {
       Map data = compoundBody;
+      if (onlyIds) data["stored_fields"] = [];
       if (size != null) data["size"] = size;
       Response response = await client.post("/$index/_search", data: data);
       final docs = (response.data["hits"]["hits"] as List)
