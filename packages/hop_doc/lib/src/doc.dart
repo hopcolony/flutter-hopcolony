@@ -42,7 +42,7 @@ class HopDoc {
     Response response = await client.get("/_cluster/health?level=indices");
     List<Index> indices = [];
     for (var entry in (response.data["indices"] as Map).entries) {
-      if ((!filterHidden || !RegExp(r"\..*").hasMatch(entry.key)) &&
+      if ((!filterHidden || !RegExp(r"^\..*").hasMatch(entry.key)) &&
           !RegExp(r"ilm-history-.*").hasMatch(entry.key)) {
         int numDocs = await this.index(entry.key).count;
         indices.add(Index.fromJson(entry.key, entry.value, numDocs));
