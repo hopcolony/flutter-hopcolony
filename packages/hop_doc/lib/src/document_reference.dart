@@ -59,7 +59,7 @@ class DocumentReference {
 
   Stream<DocumentSnapshot> stream() {
     WebSocket ws;
-    client.connect("/ws/_changes/$_index/$_id").then((WebSocket websocket) {
+    client.connect("/_changes/$_index/$_id").then((WebSocket websocket) {
       ws = websocket;
       print('[+]Connected to $_index/$_id stream');
       if (ws.readyState == 1) {

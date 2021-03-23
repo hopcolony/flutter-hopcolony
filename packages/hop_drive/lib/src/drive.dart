@@ -67,7 +67,8 @@ class HopDriveClient {
   HopDriveClient({init.Project project, this.signer})
       : project = project,
         identity = project.config.identity {
-    _baseUrl = "https://$host:$port/$identity";
+    _baseUrl = "https://$host:$port";
+    dio.options.headers['hop-identity'] = identity;
   }
 
   Future<Response> get(String path, {Options options}) async {

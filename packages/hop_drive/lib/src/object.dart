@@ -25,7 +25,7 @@ class ObjectReference {
     String resource = "/${bucketRef.bucket}/$id";
     String query = client.signer.getQuerySignature("GET", resource);
     String encodedPath = resource.split("/").map(Uri.encodeComponent).join("/");
-    return "${client.baseUrl}$encodedPath$query";
+    return "${client.baseUrl}/${client.identity}$encodedPath$query";
   }
 
   Future<ObjectSnapshot> put(Uint8List data) async {

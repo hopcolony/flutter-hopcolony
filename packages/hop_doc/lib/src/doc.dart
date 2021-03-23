@@ -59,23 +59,23 @@ class HopDocClient {
   init.Project project;
   final String host = "docs.hopcolony.io";
   final int port = 443;
-  String identity, _baseUrl;
+  String identity;
   final Dio dio = Dio();
 
   HopDocClient({init.Project project})
       : project = project,
         identity = project.config.identity {
     dio.options.headers['content-Type'] = 'application/json';
-    this._baseUrl = "https://$host:$port/$identity/http";
+    dio.options.headers['hop-identity'] = identity;
   }
 
-  Future<Response> get(String path) async => dio.get(_baseUrl + path);
+  Future<Response> get(String path) async => dio.get("https://$host:$port/api$path");
 
   Future<Response> post(String path, {var data}) async =>
-      dio.post(_baseUrl + path, data: data);
+      dio.post("https://$host:$port/api$path", data: data);
 
-  Future<Response> delete(String path) async => dio.delete(_baseUrl + path);
+  Future<Response> delete(String path) async => dio.delete("https://$host:$port/api$path");
 
   Future<WebSocket> connect(String path) async =>
-      WebSocket.connect("wss://$host:$port/$identity/ws$path");
+      WebSocket.connect("wss://$host:$port/ws$path");
 }

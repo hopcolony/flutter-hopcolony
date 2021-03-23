@@ -136,7 +136,7 @@ class QueryableReference {
 
   Stream<IndexSnapshot> stream() {
     WebSocket ws;
-    client.connect("/ws/_changes/$index/*").then((WebSocket websocket) {
+    client.connect("/_changes/$index/*").then((WebSocket websocket) {
       ws = websocket;
       print('[+]Connected to $index stream');
       if (ws.readyState == 1) {
