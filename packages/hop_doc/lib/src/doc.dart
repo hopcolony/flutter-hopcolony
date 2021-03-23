@@ -66,16 +66,15 @@ class HopDocClient {
       : project = project,
         identity = project.config.identity {
     dio.options.headers['content-Type'] = 'application/json';
-    dio.options.headers['hop-identity'] = identity;
   }
 
-  Future<Response> get(String path) async => dio.get("https://$host:$port/api$path");
+  Future<Response> get(String path) async => dio.get("https://$host:$port/$identity/api$path");
 
   Future<Response> post(String path, {var data}) async =>
-      dio.post("https://$host:$port/api$path", data: data);
+      dio.post("https://$host:$port/$identity/api$path", data: data);
 
-  Future<Response> delete(String path) async => dio.delete("https://$host:$port/api$path");
+  Future<Response> delete(String path) async => dio.delete("https://$host:$port/$identity/api$path");
 
   Future<WebSocket> connect(String path) async =>
-      WebSocket.connect("wss://$host:$port/ws$path");
+      WebSocket.connect("wss://$host:$port/$identity/ws$path");
 }

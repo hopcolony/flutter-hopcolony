@@ -68,14 +68,13 @@ class HopDriveClient {
       : project = project,
         identity = project.config.identity {
     _baseUrl = "https://$host:$port";
-    dio.options.headers['hop-identity'] = identity;
   }
 
   Future<Response> get(String path, {Options options}) async {
     options = options ?? Options();
     SignDetails signDetails = signer.sign("GET", path);
     options.headers = signDetails.headers;
-    return await dio.get("$_baseUrl$path", options: options);
+    return await dio.get("$_baseUrl/$identity$path", options: options);
   }
 
   Future<Response> put(String path, {Uint8List bodyBytes}) async {
@@ -83,7 +82,7 @@ class HopDriveClient {
     SignDetails signDetails = signer.sign("PUT", path, bodyBytes: bodyBytes);
     signDetails.headers["contentLengthHeader"] = bodyBytes.length;
     return await dio.put(
-      "$_baseUrl$path",
+      "$_baseUrl/$identity$path",
       options: Options(headers: signDetails.headers),
       data: Stream.fromIterable(bodyBytes.map((e) => [e])),
     );
@@ -91,7 +90,7 @@ class HopDriveClient {
 
   Future<Response> delete(String path) async {
     SignDetails signDetails = signer.sign("DELETE", path);
-    return await dio.delete("$_baseUrl$path",
+    return await dio.delete("$_baseUrl/$identity$path",
         options: Options(headers: signDetails.headers));
   }
 }
