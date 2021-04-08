@@ -27,7 +27,7 @@ class HopConfig {
     if (this.username == null || this.project == null) return null;
     Codec<String, String> stringToBase64 = utf8.fuse(base64);
     String encodedUsername = 'a' +
-        stringToBase64.encode(this.username).toLowerCase().replaceAll("=", "_") + 'a';
+        stringToBase64.encode(this.username).toLowerCase().replaceAll("=", "-") + 'a';
     final raw = encodedUsername + "." + this.project;
     return stringToBase64.encode(raw);
   }
