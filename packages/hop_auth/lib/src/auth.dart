@@ -61,7 +61,6 @@ class HopAuth {
       if (msg["success"]) {
         HopAuthCredential credential =
             HopAuthProvider.credential(idToken: msg["idToken"]);
-        print(credential.idToken.payload);
         AuthResult result = await signInWithCredential(credential);
         loginCompleted.complete(result);
       } else {
