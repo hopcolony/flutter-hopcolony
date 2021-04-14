@@ -106,7 +106,7 @@ class Query extends QueryableReference {
     };
   }
 
-  List<Map<String, dynamic>> get containsBody {
+  List<dynamic> get containsBody {
     return _value.split(" ").map((val) => {
       "wildcard": {_field: "*$val*"}
     }).toList();

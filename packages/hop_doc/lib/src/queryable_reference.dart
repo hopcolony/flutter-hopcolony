@@ -101,7 +101,6 @@ class QueryableReference {
       Map data = compoundBody;
       if (onlyIds) data["stored_fields"] = [];
       if (size != null) data["size"] = size;
-      print(data);
       Response response = await client.post("/$index/_search", data: data);
       final docs = (response.data["hits"]["hits"] as List)
           .map((doc) => Document.fromJson(doc))
