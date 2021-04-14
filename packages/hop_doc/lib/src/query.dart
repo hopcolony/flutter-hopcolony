@@ -10,6 +10,7 @@ enum QueryType {
   IS_GREATER_THAN_OR_EQUAL_TO,
   IS_LESS_THAN,
   IS_LESS_THAN_OR_EQUAL_TO,
+  CONTAINS,
   IS_WITHIN_RADIUS,
   IS_WITHIN_BOX,
   START_AT,
@@ -48,6 +49,7 @@ class Query extends QueryableReference {
     int isGreaterThanOrEqualTo,
     int isLessThan,
     int isLessThanOrEqualTo,
+    String contains,
     GeoDistanceQuery isWithinRadius,
     GeoBoxQuery isWithinBox,
     int at,
@@ -74,6 +76,9 @@ class Query extends QueryableReference {
     } else if (isLessThanOrEqualTo != null) {
       this._queryType = QueryType.IS_LESS_THAN_OR_EQUAL_TO;
       this._value = isLessThanOrEqualTo;
+    } else if (contains != null) {
+      this._queryType = QueryType.CONTAINS;
+      this._value = contains;
     } else if (isWithinRadius != null) {
       this._queryType = QueryType.IS_WITHIN_RADIUS;
       this._value = isWithinRadius;
@@ -98,6 +103,12 @@ class Query extends QueryableReference {
   Map<String, dynamic> get equalToBody {
     return {
       "match": {_field: _value}
+    };
+  }
+
+  Map<String, dynamic> get containsBody {
+    return {
+      "wildcard": {_field: "*$_value*"}
     };
   }
 
@@ -167,6 +178,11 @@ class Query extends QueryableReference {
         {
           (_compoundQuery["query"]["bool"]["must"] as List)
               .add(comparisonBody("lte"));
+        }
+        break;
+      case QueryType.CONTAINS:
+        {
+          (_compoundQuery["query"]["bool"]["must"] as List).add(containsBody);
         }
         break;
       case QueryType.IS_WITHIN_RADIUS:

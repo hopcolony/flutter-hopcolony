@@ -32,18 +32,22 @@ class QueryableReference {
     };
   }
 
-  Query where(String field,
-          {String isEqualTo,
-          int isGreaterThan,
-          int isGreaterThanOrEqualTo,
-          int isLessThan,
-          int isLessThanOrEqualTo}) =>
+  Query where(
+    String field, {
+    String isEqualTo,
+    int isGreaterThan,
+    int isGreaterThanOrEqualTo,
+    int isLessThan,
+    int isLessThanOrEqualTo,
+    String contains,
+  }) =>
       Query(client, index, compoundBody, field,
           isEqualTo: isEqualTo,
           isGreaterThan: isGreaterThan,
           isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
           isLessThan: isLessThan,
-          isLessThanOrEqualTo: isLessThanOrEqualTo);
+          isLessThanOrEqualTo: isLessThanOrEqualTo,
+          contains: contains);
 
   Query withinRadius({GeoPoint center, String radius, String field}) => Query(
         client,
@@ -97,6 +101,7 @@ class QueryableReference {
       Map data = compoundBody;
       if (onlyIds) data["stored_fields"] = [];
       if (size != null) data["size"] = size;
+      print(data);
       Response response = await client.post("/$index/_search", data: data);
       final docs = (response.data["hits"]["hits"] as List)
           .map((doc) => Document.fromJson(doc))
