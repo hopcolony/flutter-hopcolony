@@ -106,10 +106,10 @@ class Query extends QueryableReference {
     };
   }
 
-  Map<String, dynamic> get containsBody {
-    return {
-      "wildcard": {_field: "*$_value*"}
-    };
+  List<Map<String, dynamic>> get containsBody {
+    return _value.split(" ").map((val) => {
+      "wildcard": {_field: "*$val*"}
+    }).toList();
   }
 
   Map<String, dynamic> comparisonBody(String comparison) {
@@ -182,7 +182,7 @@ class Query extends QueryableReference {
         break;
       case QueryType.CONTAINS:
         {
-          (_compoundQuery["query"]["bool"]["must"] as List).add(containsBody);
+          (_compoundQuery["query"]["bool"]["must"] as List).addAll(containsBody);
         }
         break;
       case QueryType.IS_WITHIN_RADIUS:
