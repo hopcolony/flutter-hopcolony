@@ -1,37 +1,21 @@
 name: hop_auth
-description: A new flutter plugin project.
+description: Hop Colony auth
 version: 0.0.2
-author: Luis Paarup
-
-publish_to: none
+repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
   http: ^0.12.2
-  uuid: ^2.2.2
+  uuid: ^3.0.4
 
-  hop_init:
-    git: 
-      url: git@github.com:hopcolony/flutter-hopcolony.git
-      path: packages/hop_init
-      ref: main
-
-  hop_doc:
-    git: 
-      url: git@github.com:hopcolony/flutter-hopcolony.git
-      path: packages/hop_doc
-      ref: main
-    
-  hop_topic:
-    git: 
-      url: git@github.com:hopcolony/flutter-hopcolony.git
-      path: packages/hop_topic
-      ref: main
+  hop_init: ^0.0.2
+  hop_doc: ^0.0.2
+  hop_topic: ^0.0.2
 
 dev_dependencies:
   flutter_test:

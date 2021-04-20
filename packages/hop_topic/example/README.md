@@ -1,1 +1,1 @@
-# Tripel Doc Example
+# Hop Colony Topics

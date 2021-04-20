@@ -1,25 +1,18 @@
 name: hop_topic
-description: A Flutter library for Hop Topics
+description: Hop Colony topics
 version: 0.0.2
-author: Luis Paarup
-
-publish_to: none
+repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
   dart_amqp: ^0.1.4
   stomp_dart_client: ^0.3.8
-
-  hop_init:
-    git: 
-      url: git@github.com:hopcolony/flutter-hopcolony.git
-      path: packages/hop_init
-      ref: main
+  hop_init: ^0.0.2
 
 dev_dependencies:
   flutter_test:

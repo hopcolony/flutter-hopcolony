@@ -1,27 +1,22 @@
 name: hop_drive
-description: Hop Drive
+description: Hop Colony Drive
 version: 0.0.2
-author: Luis Paarup
-
-publish_to: none
+repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  xml: ^4.5.1
-  image: ^2.1.19
+  xml: ^5.1.0
+  image: ^3.0.2
   dio: ^3.0.10
-  uuid: ^2.2.2
-
-  hop_init:
-    git: 
-      url: git@github.com:hopcolony/flutter-hopcolony.git
-      path: packages/hop_init
-      ref: main
+  uuid: ^3.0.4
+  crypto: ^3.0.1
+  convert: ^3.0.0
+  hop_init: ^0.0.2
 
 dev_dependencies:
   flutter_test:

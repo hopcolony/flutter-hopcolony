@@ -1,3 +1,7 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial functionality
+
+## 0.0.2
+
+* Improved config management

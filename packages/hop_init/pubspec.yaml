@@ -1,13 +1,11 @@
 name: hop_init
-description: Hop Init
+description: Hop Colony Init
 version: 0.0.2
-author: Luis Paarup
-
-publish_to: none
+repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
