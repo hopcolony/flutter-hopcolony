@@ -63,10 +63,15 @@ class AMQPHopTopicClient extends HopTopicClient {
     bool exchangeIsDurable = true,
   }) async {
     amqp.Channel channel = await _amqpClient.channel();
-    amqp.Exchange exchange = await channel.exchange(
-        exchangeName, parseAMQPExchangeType(exchangeType),
-        durable: exchangeIsDurable);
-    exchange.publish(body, binding);
+    if (exchangeName.isEmpty) {
+      amqp.Queue queue = await channel.queue(binding, autoDelete: true);
+      queue.publish(body);
+    } else {
+      amqp.Exchange exchange = await channel.exchange(
+          exchangeName, parseAMQPExchangeType(exchangeType),
+          durable: exchangeIsDurable);
+      exchange.publish(body, binding);
+    }
     channel.close();
   }
 

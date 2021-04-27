@@ -37,7 +37,7 @@ class HopTopic {
   String get identity => init.config.identity;
 
   HopTopicQueue queue(String name) => HopTopicQueue(addOpenConnection, _client,
-      exchange: "(AMQP default)",
+      exchange: "",
       exchangeType: ExchangeType.DIRECT,
       binding: name,
       name: name);
