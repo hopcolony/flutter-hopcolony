@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:websocket/websocket.dart' show WebSocket;
 
@@ -20,6 +21,25 @@ class DocumentReference {
     } catch (e) {
       return DocumentSnapshot(null, success: false, reason: e.toString());
     }
+  }
+
+  Widget getWidget({
+    @required Widget Function(Document) onData,
+    @required Widget Function(String) onError,
+    @required Widget Function() onLoading,
+  }) {
+    return FutureBuilder<DocumentSnapshot>(
+        future: get(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.success) {
+              return onData(snapshot.data.doc);
+            } else {
+              return onError(snapshot.data.reason);
+            }
+          }
+          return onLoading();
+        });
   }
 
   Future<DocumentSnapshot> setData(Map<String, dynamic> doc) async {

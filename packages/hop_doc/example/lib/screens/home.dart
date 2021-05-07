@@ -151,6 +151,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          instance.index(".hop.auth").getWidget(onData: (docs) {
+            return Column(
+              children:
+                  docs.map((Document e) => Text(e.source.toString())).toList(),
+            );
+          }, onError: (reason) {
+            return Text(reason);
+          }, onLoading: () {
+            return CircularProgressIndicator();
+          }),
+          instance
+              .index(".hop.auth")
+              .document("a25073d3-ded7-58a8-bba0-58f85c0b7c83")
+              .getWidget(onData: (doc) {
+            return Text(doc.source["email"]);
+          }, onError: (reason) {
+            return Text(reason);
+          }, onLoading: () {
+            return CircularProgressIndicator();
+          }),
           TextButton(onPressed: getIndices, child: Text("Get indices")),
           TextButton(onPressed: getDocumentIds, child: Text("Get doc ids")),
           TextButton(onPressed: update, child: Text("Update")),

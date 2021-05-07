@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:hop_doc/src/geo.dart';
 import 'doc.dart';
 import 'document_reference.dart';
@@ -109,6 +110,25 @@ class QueryableReference {
     } catch (e) {
       return IndexSnapshot([], success: false, reason: e.toString());
     }
+  }
+
+  Widget getWidget({
+    @required Widget Function(List<Document>) onData,
+    @required Widget Function(String) onError,
+    @required Widget Function() onLoading,
+  }) {
+    return FutureBuilder<IndexSnapshot>(
+        future: get(),
+        builder: (context, AsyncSnapshot<IndexSnapshot> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.success) {
+              return onData(snapshot.data.docs);
+            } else {
+              return onError(snapshot.data.reason);
+            }
+          }
+          return onLoading();
+        });
   }
 
   IndexSnapshot get cachedToIndexSnapshot {
