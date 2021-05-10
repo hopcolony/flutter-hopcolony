@@ -1,1 +1,1 @@
-# Hop Colony Init
+# Hop Init

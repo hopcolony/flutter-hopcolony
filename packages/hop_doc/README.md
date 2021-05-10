@@ -1,1 +1,1 @@
-# Hop Colony Doc
+# Hop Doc
