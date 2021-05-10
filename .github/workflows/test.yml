@@ -14,8 +14,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.0.5'
-      - run: flutter pub get
-      - run: flutter test
+      - run: ./test.sh
         env:
           HOP_USER_NAME: ${{ secrets.HOP_USER_NAME }}
           HOP_PROJECT_NAME: ${{ secrets.HOP_PROJECT_NAME }}
