@@ -1,4 +1,4 @@
-name: TestHopDrive
+name: HopDrive
 
 on: [push]
 

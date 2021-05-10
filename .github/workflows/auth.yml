@@ -1,4 +1,4 @@
-name: TestHopAuth
+name: HopAuth
 
 on: [push]
 

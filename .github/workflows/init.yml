@@ -1,4 +1,4 @@
-name: TestHopInit
+name: HopInit
 
 on: [push]
 
