@@ -5,3 +5,7 @@
 ## 0.0.2
 
 * Refactored and added test suite
+
+## 0.0.3
+
+* Changed dio for http

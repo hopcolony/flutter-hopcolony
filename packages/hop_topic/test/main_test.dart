@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hop_topic/hop_topic.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String userName = "core@hopcolony.io";
-  final String projectName = "core";
-  final String tokenName = "supersecret";
+  final String userName = Platform.environment['HOP_USER_NAME'];
+  final String projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String tokenName = Platform.environment['HOP_TOKEN'];
 
   final String topicDog = "topic-dog";
   final String topicCat = "topic-cat";

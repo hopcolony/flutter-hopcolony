@@ -1,14 +1,15 @@
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
+import 'dart:io' show Platform;
+import 'package:http/http.dart' as http;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hop_drive/hop_drive.dart';
 import 'package:hop_init/hop_init.dart' as init;
 import 'img.dart' as asset;
 
 void main() async {
-  final String userName = "core@hopcolony.io";
-  final String projectName = "core";
-  final String tokenName = "supersecret";
+  final String userName = Platform.environment['HOP_USER_NAME'];
+  final String projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String tokenName = Platform.environment['HOP_TOKEN'];
 
   final String bucket = "hop-test";
   final String obj = "test_img";
@@ -85,9 +86,8 @@ void main() async {
 
   test('Get Presigned Object', () async {
     String url = db.bucket(bucket).object(obj).getPresigned();
-    Response response = await Dio()
-        .get(url, options: Options(responseType: ResponseType.bytes));
-    expect(Uint8List.fromList(response.data), img);
+    http.Response response = await http.Client().get(Uri.parse(url));
+    expect(Uint8List.fromList(response.bodyBytes), img);
   });
 
   test('Delete Object', () async {

@@ -9,3 +9,4 @@
 ## 0.0.3
 
 * Added getWidget to IndexReference and DocumentReference to build Widgets easier depending on the status of the request
+* Changed dio for http

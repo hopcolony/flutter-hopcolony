@@ -1,6 +1,6 @@
 name: hop_drive
 description: Hop Colony Drive
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   xml: ^5.1.0
   image: ^3.0.2
-  dio: ^3.0.10
+  http: ^0.13.3
   uuid: ^3.0.4
   crypto: ^3.0.1
   convert: ^3.0.0

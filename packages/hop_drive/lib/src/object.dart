@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'bucket.dart';
 import 'drive.dart';
 import 'package:xml/xml.dart';
@@ -12,9 +12,9 @@ class ObjectReference {
 
   Future<ObjectSnapshot> get() async {
     try {
-      Response response = await client.get("/${bucketRef.bucket}/$id",
-          options: Options(responseType: ResponseType.bytes));
-      return ObjectSnapshot(Object(id, data: Uint8List.fromList(response.data)),
+      http.Response response = await client.get("/${bucketRef.bucket}/$id");
+      return ObjectSnapshot(
+          Object(id, data: Uint8List.fromList(response.bodyBytes)),
           success: true);
     } catch (_) {
       return ObjectSnapshot(null, success: false);

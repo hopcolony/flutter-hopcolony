@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:hop_doc/hop_doc.dart';
 import 'package:hop_init/hop_init.dart' as init;
 import 'package:websocket/websocket.dart';
 import 'index_reference.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 
 class HopDoc {
   init.Project _project;
@@ -10,11 +12,10 @@ class HopDoc {
   static final HopDoc instance = HopDoc._internal();
   factory HopDoc() => instance;
   HopDoc._internal({init.Project project}) {
-    if(project != null) {
+    if (project != null) {
       _project = project;
       client = HopDocClient(project: project);
-    }
-    else if (client == null) {
+    } else if (client == null) {
       _project = init.project;
       client = HopDocClient(project: _project);
     }
@@ -27,8 +28,8 @@ class HopDoc {
 
   Future<Map<String, dynamic>> get status async {
     try {
-      Response response = await client.get("/_cluster/health");
-      return response.data;
+      final response = await client.get("/_cluster/health");
+      return response;
     } catch (e) {
       return {"status": "Cluster not reachable"};
     }
@@ -39,9 +40,9 @@ class HopDoc {
   }
 
   Future<List<Index>> get({filterHidden = true}) async {
-    Response response = await client.get("/_cluster/health?level=indices");
+    final response = await client.get("/_cluster/health?level=indices");
     List<Index> indices = [];
-    for (var entry in (response.data["indices"] as Map).entries) {
+    for (var entry in (response["indices"] as Map).entries) {
       if ((!filterHidden || !RegExp(r"^\..*").hasMatch(entry.key)) &&
           !RegExp(r"ilm-history-.*").hasMatch(entry.key)) {
         int numDocs = await this.index(entry.key).count;
@@ -60,20 +61,43 @@ class HopDocClient {
   final String host = "docs.hopcolony.io";
   final int port = 443;
   String identity;
-  final Dio dio = Dio();
+  final http.Client client = http.Client();
+  Map<String, String> headers = {};
 
   HopDocClient({init.Project project})
       : project = project,
-        identity = project.config.identity {
-    dio.options.headers['content-Type'] = 'application/json';
+        identity = project.config.identity;
+
+  Future<Map<String, dynamic>> get(String path) async {
+    final response = await client.get(
+      Uri.parse("https://$host:$port/$identity/api$path"),
+      headers: {'content-Type': 'application/json'},
+    );
+
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return jsonDecode(response.body);
   }
 
-  Future<Response> get(String path) async => dio.get("https://$host:$port/$identity/api$path");
+  Future<Map<String, dynamic>> post(String path,
+      {Map<String, dynamic> data}) async {
+    final response = await client.post(
+      Uri.parse("https://$host:$port/$identity/api$path"),
+      headers: {'content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
 
-  Future<Response> post(String path, {var data}) async =>
-      dio.post("https://$host:$port/$identity/api$path", data: data);
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return jsonDecode(response.body);
+  }
 
-  Future<Response> delete(String path) async => dio.delete("https://$host:$port/$identity/api$path");
+  Future<Map<String, dynamic>> delete(String path) async {
+    final response = await client.delete(
+      Uri.parse("https://$host:$port/$identity/api$path"),
+    );
+
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return jsonDecode(response.body);
+  }
 
   Future<WebSocket> connect(String path) async =>
       WebSocket.connect("wss://$host:$port/$identity/ws$path");

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:hop_doc/src/geo.dart';
 import 'doc.dart';
@@ -102,8 +102,8 @@ class QueryableReference {
       Map data = compoundBody;
       if (onlyIds) data["stored_fields"] = [];
       if (size != null) data["size"] = size;
-      Response response = await client.post("/$index/_search", data: data);
-      final docs = (response.data["hits"]["hits"] as List)
+      final response = await client.post("/$index/_search", data: data);
+      final docs = (response["hits"]["hits"] as List)
           .map((doc) => Document.fromJson(doc))
           .toList();
       return IndexSnapshot(docs, success: true);

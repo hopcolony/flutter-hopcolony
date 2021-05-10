@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:hop_init/hop_init.dart' as init;
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'signer.dart';
@@ -36,8 +36,8 @@ class HopDrive {
   Future<List<Bucket>> get() async {
     List<Bucket> buckets = [];
     try {
-      Response response = await client.get("/");
-      final document = XmlDocument.parse(await response.data);
+      http.Response response = await client.get("/");
+      final document = XmlDocument.parse(await response.body);
       for (final soup in document.findAllElements("Bucket")) {
         final name = soup.findElements('Name').single.text;
         final date = soup.findElements('CreationDate').single.text;
@@ -60,7 +60,7 @@ class HopDriveClient {
   final int port = 443;
   String identity, _baseUrl;
   final Signer signer;
-  final Dio dio = Dio();
+  final http.Client client = http.Client();
 
   String get baseUrl => _baseUrl;
 
@@ -70,27 +70,37 @@ class HopDriveClient {
     _baseUrl = "https://$host:$port";
   }
 
-  Future<Response> get(String path, {Options options}) async {
-    options = options ?? Options();
+  Future<http.Response> get(String path) async {
     SignDetails signDetails = signer.sign("GET", path);
-    options.headers = signDetails.headers;
-    return await dio.get("$_baseUrl/$identity$path", options: options);
+    final response = await client.get(
+      Uri.parse("$_baseUrl/$identity$path"),
+      headers: Map<String, String>.from(signDetails.headers),
+    );
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return response;
   }
 
-  Future<Response> put(String path, {Uint8List bodyBytes}) async {
+  Future<http.Response> put(String path, {Uint8List bodyBytes}) async {
     bodyBytes = bodyBytes ?? Uint8List(0);
     SignDetails signDetails = signer.sign("PUT", path, bodyBytes: bodyBytes);
-    signDetails.headers["contentLengthHeader"] = bodyBytes.length;
-    return await dio.put(
-      "$_baseUrl/$identity$path",
-      options: Options(headers: signDetails.headers),
-      data: Stream.fromIterable(bodyBytes.map((e) => [e])),
+    signDetails.headers["contentLengthHeader"] = bodyBytes.length.toString();
+
+    final response = await client.put(
+      Uri.parse("$_baseUrl/$identity$path"),
+      headers: Map<String, String>.from(signDetails.headers),
+      body: bodyBytes,
     );
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return response;
   }
 
-  Future<Response> delete(String path) async {
+  Future<http.Response> delete(String path) async {
     SignDetails signDetails = signer.sign("DELETE", path);
-    return await dio.delete("$_baseUrl/$identity$path",
-        options: Options(headers: signDetails.headers));
+    final response = await client.delete(
+      Uri.parse("$_baseUrl/$identity$path"),
+      headers: Map<String, String>.from(signDetails.headers),
+    );
+    if (response.statusCode >= 400) throw Exception(response.body);
+    return response;
   }
 }

@@ -1,4 +1,6 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'queryable_reference.dart';
 import 'document_reference.dart';
 import 'doc.dart';
@@ -8,11 +10,11 @@ class IndexReference extends QueryableReference {
 
   Future<DocumentSnapshot> add(Map<String, dynamic> doc) async {
     try {
-      Response response = await client.post("/$index/_doc", data: doc);
+      final response = await client.post("/$index/_doc", data: doc);
       final document = Document(doc,
           index: index,
-          id: response.data["_id"],
-          version: response.data["_version"]);
+          id: response["_id"],
+          version: response["_version"]);
       return DocumentSnapshot(document, success: true);
     } catch (e) {
       return DocumentSnapshot(null, success: false, reason: e.toString());
@@ -23,8 +25,8 @@ class IndexReference extends QueryableReference {
 
   Future<int> get count async {
     try {
-      Response response = await client.get("/$index/_count");
-      return response.data["count"];
+      final response = await client.get("/$index/_count");
+      return response["count"];
     } catch (e) {
       return 0;
     }

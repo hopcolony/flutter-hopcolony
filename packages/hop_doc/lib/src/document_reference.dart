@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:websocket/websocket.dart' show WebSocket;
@@ -16,8 +16,9 @@ class DocumentReference {
 
   Future<DocumentSnapshot> get() async {
     try {
-      Response response = await client.get("/$_index/_doc/$_id");
-      return DocumentSnapshot(Document.fromJson(response.data), success: true);
+      final response = await client.get("/$_index/_doc/$_id");
+      return DocumentSnapshot(Document.fromJson(response),
+          success: true);
     } catch (e) {
       return DocumentSnapshot(null, success: false, reason: e.toString());
     }
@@ -44,11 +45,11 @@ class DocumentReference {
 
   Future<DocumentSnapshot> setData(Map<String, dynamic> doc) async {
     try {
-      Response response = await client.post("/$_index/_doc/$_id", data: doc);
+      final response = await client.post("/$_index/_doc/$_id", data: doc);
       final document = Document(doc,
           index: _index,
-          id: response.data["_id"],
-          version: response.data["_version"]);
+          id: response["_id"],
+          version: response["_version"]);
       return DocumentSnapshot(document, success: true);
     } catch (e) {
       return DocumentSnapshot(null, success: false, reason: e.toString());
@@ -66,11 +67,11 @@ class DocumentReference {
 
   Future<DocumentSnapshot> delete() async {
     try {
-      Response response = await client.delete("/$_index/_doc/$_id");
+      final response = await client.delete("/$_index/_doc/$_id");
       final document = Document(null,
           index: _index,
-          id: response.data["_id"],
-          version: response.data["_version"]);
+          id: response["_id"],
+          version: response["_version"]);
       return DocumentSnapshot(document, success: true);
     } catch (e) {
       return DocumentSnapshot(null, success: false, reason: e.toString());
@@ -133,7 +134,7 @@ class Document {
   int version;
   List sort;
   Document(this.source, {this.index, this.id, this.version, this.sort});
-  
+
   Document.fromJson(Map<String, dynamic> json)
       : source = json["_source"],
         index = json["_index"],

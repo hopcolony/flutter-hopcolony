@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 import 'drive.dart';
@@ -14,8 +14,8 @@ class BucketReference {
   Future<BucketSnapshot> get() async {
     List<hop.Object> objects = [];
     try {
-      Response response = await client.get("/$bucket");
-      final document = XmlDocument.parse(await response.data);
+      http.Response response = await client.get("/$bucket");
+      final document = XmlDocument.parse(await response.body);
       for (final soup in document.findAllElements("Contents")) {
         final String url =
             object(soup.findElements('Key').single.text).getPresigned();
