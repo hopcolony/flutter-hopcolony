@@ -9,7 +9,9 @@
 |---|---|---|---|---|
 |[![pub package](https://img.shields.io/pub/v/hop_auth.svg)](https://pub.dev/packages/hop_auth)   | [![pub package](https://img.shields.io/pub/v/hop_doc.svg)](https://pub.dev/packages/hop_doc)   |  [![pub package](https://img.shields.io/pub/v/hop_drive.svg)](https://pub.dev/packages/hop_drive)  | [![pub package](https://img.shields.io/pub/v/hop_init.svg)](https://pub.dev/packages/hop_init)   | [![pub package](https://img.shields.io/pub/v/hop_topic.svg)](https://pub.dev/packages/hop_topic)   |
 
-[![Build Status](https://github.com/hopcolony/flutter-hopcolony/workflows/Test/badge.svg)](https://github.com/hopcolony/flutter-hopcolony/actions?query=workflow%3ATest)
+<a href="https://github.com/hopcolony/python-hopcolony/actions?query=workflow%3ATest" target="_blank">
+    <img src="https://github.com/hopcolony/python-hopcolony/workflows/Test/badge.svg" alt="Test">
+</a>
 
 ---
 
