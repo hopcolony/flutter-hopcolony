@@ -5,8 +5,15 @@
     <em>Focus on you app. Let us manage your backend.</em>
 </p>
 
-[![pub package](https://github.com/hopcolony/flutter-hopcolony/workflows/HopInit/badge.svg)](https://github.com/hopcolony/flutter-hopcolony/actions?query=workflow%3AHopInit)
-[![pub package](https://img.shields.io/pub/v/hop_init.svg)](https://pub.dev/packages/hop_init)
+<p align="center">
+<a href="https://github.com/hopcolony/flutter-hopcolony/actions?query=workflow%3AHopInit" target="_blank">
+    <img src="https://github.com/hopcolony/flutter-hopcolony/workflows/HopInit/badge.svg" alt="Test">
+</a>
+</a>
+<a href="https://pub.dev/packages/hop_init" target="_blank">
+    <img src="https://img.shields.io/pub/v/hop_init.svg" alt="Package version">
+</a>
+</p>
 
 ---
 
