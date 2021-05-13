@@ -12,6 +12,4 @@
 
 ---
 
-**Documentation**: <a href="https://hopcolony.io" target="_blank">https://hopcolony.io/docs</a>
-
-**Source Code**: <a href="https://github.com/hopcolony/flutter-hopcolony" target="_blank">https://github.com/hopcolony/flutter-hopcolony</a>
+**Documentation**: <a href="https://hopcolony.io/latest/docs" target="_blank">https://hopcolony.io/latest/docs</a>
