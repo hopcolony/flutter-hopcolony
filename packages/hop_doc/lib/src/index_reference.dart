@@ -50,7 +50,6 @@ class IndexSnapshot {
 }
 
 class Index {
-  Map<String, dynamic> source;
   String name, status;
   int numDocs, numShards, numReplicas, activePrimaryShards, activeShards;
   Index({
