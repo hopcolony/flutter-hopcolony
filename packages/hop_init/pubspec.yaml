@@ -1,6 +1,6 @@
 name: hop_init
 description: Hop Colony Init
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yaml: ^2.2.1
+  yaml: ^3.0.0
 
 dev_dependencies:
   flutter_test:
