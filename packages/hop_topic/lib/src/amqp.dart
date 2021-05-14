@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'client.dart';
-import 'package:dart_amqp/dart_amqp.dart' as amqp;
+import 'package:hop_topic/lib/dart_amqp.dart' as amqp;
 
 class AMQPHopTopicClient extends HopTopicClient {
   amqp.Client _amqpClient;

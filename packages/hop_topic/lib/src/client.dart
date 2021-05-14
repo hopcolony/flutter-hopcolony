@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:dart_amqp/dart_amqp.dart' as amqp;
+import 'package:hop_topic/lib/dart_amqp.dart' as amqp;
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 enum ExchangeType { DIRECT, FANOUT, TOPIC }

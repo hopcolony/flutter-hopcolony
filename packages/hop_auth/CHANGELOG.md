@@ -12,3 +12,11 @@
 * Added authChangeStream to listen to auth changes
 * Added authChangeWidget to easily create Widgets depending on the current user changes in real time
 * Updated the example
+
+## 0.0.4
+
+* Updated dependencies
+
+## 0.0.5
+
+* Updated hop_topic dependency

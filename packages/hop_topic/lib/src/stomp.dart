@@ -18,7 +18,7 @@ class STOMPHopTopicClient extends HopTopicClient {
             'passcode': settings.authenticator.password,
             'host': settings.virtualHost
           },
-          onConnect: (client, _) {
+          onConnect: (_) {
             if (!connected.isCompleted) connected.complete();
           }),
     );

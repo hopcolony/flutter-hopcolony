@@ -1,6 +1,6 @@
 name: hop_topic
 description: Hop Colony topics
-version: 0.0.2
+version: 0.0.5
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dart_amqp: ^0.1.4
-  stomp_dart_client: ^0.3.8
-  hop_init: ^0.0.2
+  stomp_dart_client: ^0.4.1
+  hop_init: ^0.0.3
+  logging: ^1.0.1
 
 dev_dependencies:
   flutter_test:
