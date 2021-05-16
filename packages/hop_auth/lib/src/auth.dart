@@ -15,6 +15,7 @@ class HopAuthException implements Exception {
 }
 
 class HopAuth {
+  Completer<bool> _isReadyCompleter = Completer<bool>();
   bool isInitilized = false;
   bool isReady = false;
 
@@ -28,7 +29,10 @@ class HopAuth {
 
   HopAuth._internal() {
     if (!isInitilized) {
-      initialize().then((_) => isReady = true);
+      initialize().then((_) {
+        isReady = true;
+        _isReadyCompleter.complete(true);
+      });
       isInitilized = true;
     }
   }
@@ -45,6 +49,10 @@ class HopAuth {
     }
   }
 
+  Future<bool> get ready async {
+    return await _isReadyCompleter.future;
+  }
+
   void dispose() {
     _authChangedController.close();
   }
@@ -59,6 +67,29 @@ class HopAuth {
 
     currentUser = user;
     _authChangedController?.add(user);
+  }
+
+  Future<AuthResult> signInWithEmailAndPassword(
+      {@required String email, @required String password}) async {
+    String uuid = Uuid().v5(Uuid.NAMESPACE_DNS, email);
+
+    DocumentSnapshot doc = await _docs.index(".hop.auth").document(uuid).get();
+    if (doc.success) {
+      if (doc.doc.source.containsKey("password") &&
+          doc.doc.source["password"] == password) {
+        String now = DateTime.now().toString();
+        await _docs
+            .index(".hop.auth")
+            .document(uuid)
+            .update({"lastLoginTs": now});
+
+        final user = HopUser.fromJson(doc.doc.source);
+        await setCurrentUser(user);
+        return AuthResult(success: true, user: user);
+      }
+      return AuthResult(success: false, reason: "Incorrect Password");
+    }
+    return AuthResult(success: false, reason: "Email does not exist");
   }
 
   Future<AuthResult> signInWithCredential(AuthCredential credential) async {
@@ -81,9 +112,7 @@ class HopAuth {
           });
 
     final user = HopUser.fromJson(doc.doc.source);
-
     await setCurrentUser(user);
-
     return AuthResult(success: true, user: user);
   }
 

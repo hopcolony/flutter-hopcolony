@@ -20,3 +20,8 @@
 ## 0.0.5
 
 * Updated hop_topic dependency
+
+## 0.0.6
+
+* Added signInWithEmailAndPassword
+* Added HopAuth.instance.ready
