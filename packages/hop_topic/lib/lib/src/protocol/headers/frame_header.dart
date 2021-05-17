@@ -3,9 +3,9 @@ part of dart_amqp.protocol;
 class FrameHeader implements Header {
   static const int LENGTH_IN_BYTES = 7;
 
-  FrameType type;
-  int channel;
-  int size;
+  FrameType? type;
+  int? channel;
+  int? size;
 
   FrameHeader();
 
@@ -23,9 +23,9 @@ class FrameHeader implements Header {
 
   void serialize(TypeEncoder encoder) {
     encoder
-      ..writeUInt8(type.value)
-      ..writeUInt16(channel)
-      ..writeUInt32(size);
+      ..writeUInt8(type!.value)
+      ..writeUInt16(channel!)
+      ..writeUInt32(size!);
   }
 
 //  String toString() {

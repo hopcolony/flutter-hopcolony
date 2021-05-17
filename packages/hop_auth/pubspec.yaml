@@ -1,11 +1,10 @@
 name: hop_auth
 description: Hop Colony auth
-version: 0.0.6
+version: 0.0.7
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -13,9 +12,9 @@ dependencies:
   uuid: ^3.0.4
   shared_preferences: ^2.0.5
 
-  hop_init: ^0.0.3
-  hop_doc: ^0.0.3
-  hop_topic: ^0.0.4
+  hop_init: ^0.0.4
+  hop_doc: ^0.0.4
+  hop_topic: ^0.0.6
 
 dev_dependencies:
   flutter_test:

@@ -7,16 +7,16 @@ import 'package:hop_init/hop_init.dart' as init;
 import 'img.dart' as asset;
 
 void main() async {
-  final String userName = Platform.environment['HOP_USER_NAME'];
-  final String projectName = Platform.environment['HOP_PROJECT_NAME'];
-  final String tokenName = Platform.environment['HOP_TOKEN'];
+  final String? userName = Platform.environment['HOP_USER_NAME'];
+  final String? projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String? tokenName = Platform.environment['HOP_TOKEN'];
 
   final String bucket = "hop-test";
   final String obj = "test_img";
-  Uint8List img;
+  late Uint8List img;
 
-  init.Project project;
-  HopDrive db;
+  late init.Project project;
+  late HopDrive db;
 
   setUpAll(() async {
     project = await init.initialize(
@@ -30,8 +30,8 @@ void main() async {
     expect(project.name, projectName);
 
     expect(db.project.name, project.name);
-    expect(db.client.host, "drive.hopcolony.io");
-    expect(db.client.identity, project.config.identity);
+    expect(db.client?.host, "drive.hopcolony.io");
+    expect(db.client?.identity, project.config.identity);
   });
 
   test('Get non existing Bucket', () async {
@@ -80,8 +80,8 @@ void main() async {
   test('Get Object', () async {
     ObjectSnapshot snapshot = await db.bucket(bucket).object(obj).get();
     expect(snapshot.success, true);
-    expect(snapshot.object.id, obj);
-    expect(snapshot.object.data, img);
+    expect(snapshot.object?.id, obj);
+    expect(snapshot.object?.data, img);
   });
 
   test('Get Presigned Object', () async {
@@ -98,7 +98,7 @@ void main() async {
   test('Add Object', () async {
     ObjectSnapshot snapshot = await db.bucket(bucket).add(img);
     expect(snapshot.success, true);
-    expect(snapshot.object.id, isNot(null));
+    expect(snapshot.object?.id, isNot(null));
   });
 
   test('Delete Bucket', () async {

@@ -8,21 +8,25 @@ enum ExchangeType { DIRECT, FANOUT, TOPIC }
 enum OutputType { BYTES, STRING, JSON }
 
 class HopTopicMessage {
-  final Uint8List payload;
-  final String payloadAsString;
-  final Map<String, dynamic> payloadAsJson;
+  final Uint8List? payload;
+  final String? payloadAsString;
+  final Map<String, dynamic>? payloadAsJson;
   HopTopicMessage(this.payload, this.payloadAsString, this.payloadAsJson);
 
   static dynamic fromAMQP(amqp.AmqpMessage message, OutputType outputType) {
-    final msg = HopTopicMessage(message.payload, message.payloadAsString,
-        outputType == OutputType.JSON ? message.payloadAsJson : null);
+    final msg = HopTopicMessage(
+        message.payload,
+        message.payloadAsString,
+        outputType == OutputType.JSON
+            ? Map<String, dynamic>.from(message.payloadAsJson!)
+            : null);
     return HopTopicMessage.fromHopTopicMessage(msg, outputType);
   }
 
   static dynamic fromSTOMP(StompFrame message, OutputType outputType) {
     dynamic json;
     try {
-      json = jsonDecode(message.body);
+      json = jsonDecode(message.body!);
     } catch (e) {}
     final msg = HopTopicMessage(message.binaryBody, message.body, json);
     return HopTopicMessage.fromHopTopicMessage(msg, outputType);
@@ -63,10 +67,10 @@ class HopTopicConnectionSettings {
   final HopTopicAuthenticator authenticator;
   HopTopicConnectionSettings(
       {this.host = "topics.hopcolony.io",
-      this.amqpPort = 32012,
+      this.amqpPort = 15012,
       this.stompPort = 443,
-      this.virtualHost,
-      this.authenticator});
+      this.virtualHost = "/",
+      required this.authenticator});
 
   amqp.ConnectionSettings get toAMQP => amqp.ConnectionSettings(
       host: host,
@@ -77,14 +81,13 @@ class HopTopicConnectionSettings {
 
 class OpenConnection {
   final String queue, exchange;
-  final StreamController<dynamic> controller;
-  Function unsubscribeFunction;
-  OpenConnection(this.queue, this.exchange, this.controller);
+  StreamController<dynamic>? controller;
+  Function? unsubscribeFunction;
+  OpenConnection(this.queue, this.exchange);
 
   void close() {
-    // print("Closing connection with queue ($queue) and exchange ($exchange)");
     controller?.close();
-    if (unsubscribeFunction != null) unsubscribeFunction();
+    if (unsubscribeFunction != null) unsubscribeFunction!();
   }
 
   String toString() =>
@@ -117,9 +120,8 @@ abstract class HopTopicClient {
     OutputType outputType,
     bool exchangeIsDurable,
   ) {
-    StreamController<dynamic> controller;
-    OpenConnection openConnection =
-        OpenConnection(queueName, exchangeName, controller);
+    OpenConnection openConnection = OpenConnection(queueName, exchangeName);
+    late StreamController<dynamic> controller;
     controller = StreamController<dynamic>(
       onListen: () async {
         Function unsubscribeFunction = await onListen(
@@ -137,6 +139,7 @@ abstract class HopTopicClient {
       },
       onCancel: openConnection.close,
     );
+    openConnection.controller = controller;
     addOpenConnection(openConnection);
     return controller.stream;
   }

@@ -15,7 +15,7 @@ class _ConsumerImpl implements Consumer {
   );
 
   StreamSubscription<AmqpMessage> listen(void onData(AmqpMessage event),
-          {Function onError, void onDone(), bool cancelOnError}) =>
+          {Function? onError, void onDone()?, bool? cancelOnError}) =>
       _controller.stream.listen(onData,
           onError: onError, onDone: onDone, cancelOnError: cancelOnError);
 

@@ -19,13 +19,13 @@ class HopAuth {
   bool isInitilized = false;
   bool isReady = false;
 
-  HopUser currentUser;
-  WindowBase _oauthWindow;
+  HopUser? currentUser;
+  WindowBase? _oauthWindow;
   static final HopAuth instance = HopAuth._internal();
   factory HopAuth() => instance;
   final HopDoc _docs = HopDoc.instance;
 
-  StreamController<HopUser> _authChangedController;
+  StreamController<HopUser?>? _authChangedController;
 
   HopAuth._internal() {
     if (!isInitilized) {
@@ -43,7 +43,7 @@ class HopAuth {
     if (uuid != null) {
       final snapshot = await _docs.index(".hop.auth").document(uuid).get();
       if (snapshot.success) {
-        final user = HopUser.fromJson(snapshot.doc.source);
+        HopUser user = HopUser.fromJson(snapshot.doc!.source!);
         await setCurrentUser(user);
       }
     }
@@ -54,10 +54,10 @@ class HopAuth {
   }
 
   void dispose() {
-    _authChangedController.close();
+    _authChangedController?.close();
   }
 
-  void setCurrentUser(HopUser user) async {
+  Future<void> setCurrentUser(HopUser? user) async {
     final prefs = await SharedPreferences.getInstance();
     if (user != null) {
       await prefs.setString("hop.auth.uuid", user.uuid);
@@ -70,20 +70,20 @@ class HopAuth {
   }
 
   Future<AuthResult> signInWithEmailAndPassword(
-      {@required String email, @required String password}) async {
+      {required String email, required String password}) async {
     String uuid = Uuid().v5(Uuid.NAMESPACE_DNS, email);
 
     DocumentSnapshot doc = await _docs.index(".hop.auth").document(uuid).get();
     if (doc.success) {
-      if (doc.doc.source.containsKey("password") &&
-          doc.doc.source["password"] == password) {
+      if (doc.doc!.source!.containsKey("password") &&
+          doc.doc!.source!["password"] == password) {
         String now = DateTime.now().toString();
         await _docs
             .index(".hop.auth")
             .document(uuid)
             .update({"lastLoginTs": now});
 
-        final user = HopUser.fromJson(doc.doc.source);
+        final user = HopUser.fromJson(doc.doc!.source!);
         await setCurrentUser(user);
         return AuthResult(success: true, user: user);
       }
@@ -111,13 +111,13 @@ class HopAuth {
             "isAnonymous": false,
           });
 
-    final user = HopUser.fromJson(doc.doc.source);
+    final user = HopUser.fromJson(doc.doc!.source!);
     await setCurrentUser(user);
     return AuthResult(success: true, user: user);
   }
 
-  Future<AuthResult> signInWithHopcolony({List<String> scopes}) async {
-    Map<String, dynamic> queryParameters = {"client_id": init.config.identity};
+  Future<AuthResult> signInWithHopcolony({List<String>? scopes}) async {
+    Map<String, dynamic> queryParameters = {"client_id": init.config?.identity};
     if (scopes != null) {
       queryParameters["scope"] = scopes.join(',');
     }
@@ -131,26 +131,27 @@ class HopAuth {
     Completer<AuthResult> loginCompleted = Completer<AuthResult>();
     StreamSubscription subscription = HopTopic.instance
         .exchange("oauth")
-        .topic(init.config.identity)
+        .topic(init.config!.identity!)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) async {
       if (msg["success"]) {
         HopAuthCredential credential =
-            HopAuthProvider.credential(idToken: msg["idToken"]);
+            HopAuthProvider.credential(idToken: msg["idToken"])
+                as HopAuthCredential;
         AuthResult result = await signInWithCredential(credential);
         loginCompleted.complete(result);
       } else {
         loginCompleted
             .complete(AuthResult(success: false, reason: msg["reason"]));
       }
-      this._oauthWindow.close();
+      this._oauthWindow?.close();
     });
 
     AuthResult result = await loginCompleted.future;
     subscription.cancel();
 
     if (!result.success) {
-      throw HopAuthException(result.reason);
+      throw HopAuthException(result.reason!);
     }
 
     await setCurrentUser(result.user);
@@ -162,22 +163,22 @@ class HopAuth {
     setCurrentUser(null);
   }
 
-  Stream<HopUser> authChangeStream() {
+  Stream<HopUser?> authChangeStream() {
     _authChangedController = StreamController<HopUser>(
-        onListen: () async => _authChangedController.add(currentUser),
-        onResume: () async => _authChangedController.add(currentUser));
+        onListen: () async => _authChangedController!.add(currentUser),
+        onResume: () async => _authChangedController!.add(currentUser));
 
-    return _authChangedController.stream;
+    return _authChangedController!.stream;
   }
 
   Widget authChangeWidget({
-    @required Widget Function(HopUser) onData,
-    @required Widget Function(String) onError,
-    @required Widget Function() onLoading,
+    required Widget Function(HopUser?) onData,
+    required Widget Function(String) onError,
+    required Widget Function() onLoading,
   }) {
-    return StreamBuilder<HopUser>(
+    return StreamBuilder<HopUser?>(
         stream: authChangeStream(),
-        builder: (context, AsyncSnapshot<HopUser> snapshot) {
+        builder: (context, AsyncSnapshot<HopUser?> snapshot) {
           if (snapshot.connectionState == ConnectionState.active && isReady) {
             return onData(snapshot.data);
           }

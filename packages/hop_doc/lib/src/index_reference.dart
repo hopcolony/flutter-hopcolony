@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
 import 'queryable_reference.dart';
 import 'document_reference.dart';
 import 'doc.dart';
@@ -46,20 +43,20 @@ class IndexSnapshot {
   List<Document> docs;
   bool success;
   String reason;
-  IndexSnapshot(this.docs, {this.success, this.reason = ""});
+  IndexSnapshot(this.docs, {required this.success, this.reason = ""});
 }
 
 class Index {
   String name, status;
   int numDocs, numShards, numReplicas, activePrimaryShards, activeShards;
   Index({
-    this.name,
-    this.numDocs,
-    this.status,
-    this.numShards,
-    this.numReplicas,
-    this.activePrimaryShards,
-    this.activeShards,
+    required this.name,
+    required this.numDocs,
+    required this.status,
+    required this.numShards,
+    required this.numReplicas,
+    required this.activePrimaryShards,
+    required this.activeShards,
   });
 
   Index.fromJson(String name, Map<String, dynamic> json, int numDocs)

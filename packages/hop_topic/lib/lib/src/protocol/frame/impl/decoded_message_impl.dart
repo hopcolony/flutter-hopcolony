@@ -3,24 +3,24 @@ part of dart_amqp.protocol;
 class DecodedMessageImpl implements DecodedMessage {
   final int channel;
   final Message message;
-  ContentHeader contentHeader;
-  ChunkedOutputWriter payloadBuffer;
-  Uint8List payload;
+  ContentHeader? contentHeader;
+  ChunkedOutputWriter? payloadBuffer;
+  late Uint8List payload;
 
   DecodedMessageImpl(this.channel, this.message);
 
-  MessageProperties get properties => contentHeader?.properties;
+  MessageProperties? get properties => contentHeader?.properties;
 
-  set properties(MessageProperties properties) {
+  set properties(MessageProperties? properties) {
     if (contentHeader != null) {
-      contentHeader.properties = properties;
+      contentHeader!.properties = properties;
     }
   }
 
   void finalizePayload() {
     if (payloadBuffer != null) {
-      payload = payloadBuffer.joinChunks();
-      payloadBuffer.clear();
+      payload = payloadBuffer!.joinChunks();
+      payloadBuffer?.clear();
     }
   }
 

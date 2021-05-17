@@ -1,18 +1,16 @@
 name: hop_doc
 description: Hop Colony Docs
-version: 0.0.3
+version: 0.0.4
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.3
-  websocket: ^0.0.5
-  hop_init: ^0.0.2
+  hop_init: ^0.0.4
 
 dev_dependencies:
   flutter_test:

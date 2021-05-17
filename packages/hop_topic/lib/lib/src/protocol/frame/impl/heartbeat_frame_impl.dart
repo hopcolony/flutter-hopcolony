@@ -15,13 +15,13 @@ class HeartbeatFrameImpl implements DecodedMessage {
 //    return sb.toString();
 //  }
 
-  Message get message => null;
+  Message? get message => null;
 
-  MessageProperties get properties => null;
+  MessageProperties? get properties => null;
 
-  Uint8List get payload => null;
+  Uint8List? get payload => null;
 
-  String get payloadAsString => null;
+  String? get payloadAsString => null;
 
-  Map get payloadAsJson => null;
+  Map? get payloadAsJson => null;
 }

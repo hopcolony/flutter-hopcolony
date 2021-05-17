@@ -4,14 +4,14 @@ class HopUser {
   final bool isAnonymous;
 
   HopUser({
-    this.registerTs,
-    this.lastLoginTs,
-    this.uuid,
-    this.email,
-    this.name,
-    this.picture,
-    this.locale,
-    this.isAnonymous,
+    required this.registerTs,
+    required this.lastLoginTs,
+    required this.uuid,
+    required this.email,
+    required this.name,
+    required this.picture,
+    required this.locale,
+    required this.isAnonymous,
   });
 
   factory HopUser.fromJson(Map json) => HopUser(

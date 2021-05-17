@@ -4,7 +4,7 @@ import 'client.dart';
 import 'package:hop_topic/lib/dart_amqp.dart' as amqp;
 
 class AMQPHopTopicClient extends HopTopicClient {
-  amqp.Client _amqpClient;
+  late amqp.Client _amqpClient;
   AMQPHopTopicClient(amqp.ConnectionSettings settings) {
     _amqpClient = amqp.Client(settings: settings);
   }
@@ -47,7 +47,7 @@ class AMQPHopTopicClient extends HopTopicClient {
 
     amqp.Consumer consumer = await queue.consume();
     consumer.listen((amqp.AmqpMessage message) =>
-        controller?.add(HopTopicMessage.fromAMQP(message, outputType)));
+        controller.add(HopTopicMessage.fromAMQP(message, outputType)));
 
     return () {
       channel.close();

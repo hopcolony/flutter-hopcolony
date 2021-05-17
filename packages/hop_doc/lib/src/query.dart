@@ -22,19 +22,27 @@ enum QueryType {
 class GeoDistanceQuery {
   final GeoPoint center;
   final String radius, field;
-  GeoDistanceQuery({this.center, this.radius, this.field});
+  GeoDistanceQuery({
+    required this.center,
+    required this.radius,
+    required this.field,
+  });
 }
 
 class GeoBoxQuery {
   final GeoPoint topLeft, bottomRight;
   final String field;
-  GeoBoxQuery({this.topLeft, this.bottomRight, this.field});
+  GeoBoxQuery({
+    required this.topLeft,
+    required this.bottomRight,
+    required this.field,
+  });
 }
 
 class Query extends QueryableReference {
   Map<String, dynamic> _compoundQuery;
   String _field;
-  QueryType _queryType;
+  late QueryType _queryType;
   var _value;
   bool nanoDate; // Used to sort by timestamp if timestamp in nanoseconds
   bool addId; // Used to indicate when to add the id when sorting
@@ -44,20 +52,20 @@ class Query extends QueryableReference {
     index,
     this._compoundQuery,
     this._field, {
-    String isEqualTo,
-    int isGreaterThan,
-    int isGreaterThanOrEqualTo,
-    int isLessThan,
-    int isLessThanOrEqualTo,
-    String contains,
-    GeoDistanceQuery isWithinRadius,
-    GeoBoxQuery isWithinBox,
-    int at,
-    Document after,
-    int limit,
-    String orderBy,
-    this.addId,
-    this.nanoDate,
+    String? isEqualTo,
+    int? isGreaterThan,
+    int? isGreaterThanOrEqualTo,
+    int? isLessThan,
+    int? isLessThanOrEqualTo,
+    String? contains,
+    GeoDistanceQuery? isWithinRadius,
+    GeoBoxQuery? isWithinBox,
+    int? at,
+    Document? after,
+    int? limit,
+    String? orderBy,
+    this.addId = false,
+    this.nanoDate = false,
   })  : assert((at == null || after == null) == true,
             "You cannot set both at and after in start filter method on a query"),
         super(client, index) {
@@ -107,9 +115,12 @@ class Query extends QueryableReference {
   }
 
   List<dynamic> get containsBody {
-    return _value.split(" ").map((val) => {
-      "wildcard": {_field: "*$val*"}
-    }).toList();
+    return _value
+        .split(" ")
+        .map((val) => {
+              "wildcard": {_field: "*$val*"}
+            })
+        .toList();
   }
 
   Map<String, dynamic> comparisonBody(String comparison) {
@@ -182,7 +193,8 @@ class Query extends QueryableReference {
         break;
       case QueryType.CONTAINS:
         {
-          (_compoundQuery["query"]["bool"]["must"] as List).addAll(containsBody);
+          (_compoundQuery["query"]["bool"]["must"] as List)
+              .addAll(containsBody);
         }
         break;
       case QueryType.IS_WITHIN_RADIUS:
@@ -222,7 +234,7 @@ class Query extends QueryableReference {
                 searchAfter.add(doc.id);
                 continue;
               }
-              dynamic value = doc.source[key];
+              dynamic value = doc.source![key];
               // Convert to timestamp if its a time value
               try {
                 value = this.nanoDate

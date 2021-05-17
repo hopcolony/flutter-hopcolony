@@ -14,9 +14,9 @@ class BasicQos implements Message {
   final int msgMethodId = 10;
 
   // Message arguments
-  int prefetchSize;
-  int prefetchCount;
-  bool global;
+  late int prefetchSize;
+  late int prefetchCount;
+  late bool global;
 
   BasicQos();
 
@@ -48,14 +48,14 @@ class BasicConsume implements Message {
   final int msgMethodId = 20;
 
   // Message arguments
-  int reserved_1;
-  String queue;
-  String consumerTag;
-  bool noLocal;
-  bool noAck;
-  bool exclusive;
-  bool noWait;
-  Map<String, Object> arguments;
+  int? reserved_1;
+  String? queue;
+  String? consumerTag;
+  bool? noLocal;
+  bool? noAck;
+  bool? exclusive;
+  bool? noWait;
+  Map<String, Object>? arguments;
 
   BasicConsume();
 
@@ -63,7 +63,7 @@ class BasicConsume implements Message {
     encoder
       ..writeUInt16(msgClassId)
       ..writeUInt16(msgMethodId)
-      ..writeUInt16(reserved_1)
+      ..writeUInt16(reserved_1!)
       ..writeShortString(queue)
       ..writeShortString(consumerTag)
       ..writeBits([noLocal, noAck, exclusive, noWait])
@@ -77,7 +77,7 @@ class BasicConsumeOk implements Message {
   final int msgMethodId = 21;
 
   // Message arguments
-  String consumerTag;
+  late String consumerTag;
 
   BasicConsumeOk.fromStream(TypeDecoder decoder) {
     consumerTag = decoder.readShortString();
@@ -92,8 +92,8 @@ class BasicCancel implements Message {
   final int msgMethodId = 30;
 
   // Message arguments
-  String consumerTag;
-  bool noWait;
+  late String consumerTag;
+  late bool noWait;
 
   BasicCancel();
 
@@ -112,7 +112,7 @@ class BasicCancelOk implements Message {
   final int msgMethodId = 31;
 
   // Message arguments
-  String consumerTag;
+  late String consumerTag;
 
   BasicCancelOk.fromStream(TypeDecoder decoder) {
     consumerTag = decoder.readShortString();
@@ -127,11 +127,11 @@ class BasicPublish implements Message {
   final int msgMethodId = 40;
 
   // Message arguments
-  int reserved_1;
-  String exchange;
-  String routingKey;
-  bool mandatory;
-  bool immediate;
+  int? reserved_1;
+  String? exchange;
+  String? routingKey;
+  bool? mandatory;
+  bool? immediate;
 
   BasicPublish();
 
@@ -139,7 +139,7 @@ class BasicPublish implements Message {
     encoder
       ..writeUInt16(msgClassId)
       ..writeUInt16(msgMethodId)
-      ..writeUInt16(reserved_1)
+      ..writeUInt16(reserved_1!)
       ..writeShortString(exchange)
       ..writeShortString(routingKey)
       ..writeBits([mandatory, immediate]);
@@ -152,10 +152,10 @@ class BasicReturn implements Message {
   final int msgMethodId = 50;
 
   // Message arguments
-  int replyCode;
-  String replyText;
-  String exchange;
-  String routingKey;
+  late int replyCode;
+  late String replyText;
+  late String exchange;
+  late String routingKey;
 
   BasicReturn.fromStream(TypeDecoder decoder) {
     replyCode = decoder.readUInt16();
@@ -173,11 +173,11 @@ class BasicDeliver implements Message {
   final int msgMethodId = 60;
 
   // Message arguments
-  String consumerTag;
-  int deliveryTag;
-  bool redelivered;
-  String exchange;
-  String routingKey;
+  late String consumerTag;
+  late int deliveryTag;
+  late bool redelivered;
+  late String exchange;
+  late String routingKey;
 
   BasicDeliver.fromStream(TypeDecoder decoder) {
     consumerTag = decoder.readShortString();
@@ -198,8 +198,8 @@ class BasicAck implements Message {
   final int msgMethodId = 80;
 
   // Message arguments
-  int deliveryTag;
-  bool multiple;
+  late int deliveryTag;
+  late bool multiple;
 
   BasicAck();
 
@@ -218,8 +218,8 @@ class BasicReject implements Message {
   final int msgMethodId = 90;
 
   // Message arguments
-  int deliveryTag;
-  bool requeue;
+  late int deliveryTag;
+  late bool requeue;
 
   BasicReject();
 
@@ -238,7 +238,7 @@ class BasicRecover implements Message {
   final int msgMethodId = 110;
 
   // Message arguments
-  bool requeue;
+  late bool requeue;
 
   BasicRecover();
 

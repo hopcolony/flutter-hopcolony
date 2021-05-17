@@ -53,9 +53,9 @@ class ObjectReference {
 }
 
 class ObjectSnapshot {
-  final Object object;
+  final Object? object;
   final bool success;
-  ObjectSnapshot(this.object, {this.success});
+  ObjectSnapshot(this.object, {required this.success});
 }
 
 class Owner {
@@ -69,11 +69,11 @@ class Owner {
 
 class Object {
   String id;
-  Uint8List data;
-  String url, etag, storageclass;
-  DateTime lastModified;
-  int size;
-  Owner owner;
+  Uint8List? data;
+  late String url, etag, storageclass;
+  late DateTime lastModified;
+  late int size;
+  late Owner owner;
 
   Object(this.id, {this.data});
 

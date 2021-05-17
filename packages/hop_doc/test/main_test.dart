@@ -4,16 +4,16 @@ import 'package:hop_doc/hop_doc.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String userName = Platform.environment['HOP_USER_NAME'];
-  final String projectName = Platform.environment['HOP_PROJECT_NAME'];
-  final String tokenName = Platform.environment['HOP_TOKEN'];
+  final String? userName = Platform.environment['HOP_USER_NAME'];
+  final String? projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String? tokenName = Platform.environment['HOP_TOKEN'];
 
   final String index = ".hop.tests";
   final String uid = "hopcolony";
   final Map<String, dynamic> data = {"purpose": "Test Hop Docs!"};
 
-  init.Project project;
-  HopDoc db;
+  late init.Project project;
+  late HopDoc db;
 
   setUpAll(() async {
     project = await init.initialize(
@@ -26,8 +26,8 @@ void main() async {
     expect(project.name, projectName);
 
     expect(db.project.name, project.name);
-    expect(db.client.host, "docs.hopcolony.io");
-    expect(db.client.identity, project.config.identity);
+    expect(db.client?.host, "docs.hopcolony.io");
+    expect(db.client?.identity, project.config.identity);
   });
 
   test('Status', () async {
@@ -40,20 +40,20 @@ void main() async {
         await db.index(index).document(uid).setData(data);
     expect(snapshot.success, true);
 
-    Document doc = snapshot.doc;
-    expect(doc.index, index);
-    expect(doc.id, uid);
-    expect(doc.source, data);
+    Document? doc = snapshot.doc;
+    expect(doc?.index, index);
+    expect(doc?.id, uid);
+    expect(doc?.source, data);
   });
 
   test('Get Document', () async {
     DocumentSnapshot snapshot = await db.index(index).document(uid).get();
     expect(snapshot.success, true);
 
-    Document doc = snapshot.doc;
-    expect(doc.index, index);
-    expect(doc.id, uid);
-    expect(doc.source, data);
+    Document? doc = snapshot.doc;
+    expect(doc?.index, index);
+    expect(doc?.id, uid);
+    expect(doc?.source, data);
   });
 
   test('Delete Document', () async {
@@ -79,11 +79,11 @@ void main() async {
     DocumentSnapshot snapshot = await db.index(index).add(data);
     expect(snapshot.success, true);
 
-    Document doc = snapshot.doc;
-    expect(doc.index, index);
-    expect(doc.source, data);
+    Document? doc = snapshot.doc;
+    expect(doc?.index, index);
+    expect(doc?.source, data);
 
-    snapshot = await db.index(index).document(doc.id).delete();
+    snapshot = await db.index(index).document(doc!.id).delete();
     expect(snapshot.success, true);
   });
 

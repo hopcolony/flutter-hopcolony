@@ -17,18 +17,22 @@ class ConfigNotFound implements Exception {
 }
 
 class HopConfig {
-  final String username, project, token;
-  String identity;
+  final String? username, project, token;
+  late String? identity;
   HopConfig({this.username, this.project, this.token}) {
     this.identity = computeIdentity();
   }
 
-  String computeIdentity() {
+  String? computeIdentity() {
     if (this.username == null || this.project == null) return null;
     Codec<String, String> stringToBase64 = utf8.fuse(base64);
     String encodedUsername = 'a' +
-        stringToBase64.encode(this.username).toLowerCase().replaceAll("=", "-") + 'a';
-    final raw = encodedUsername + "." + this.project;
+        stringToBase64
+            .encode(this.username!)
+            .toLowerCase()
+            .replaceAll("=", "-") +
+        'a';
+    final raw = encodedUsername + "." + this.project!;
     return stringToBase64.encode(raw);
   }
 
@@ -64,9 +68,9 @@ class HopConfig {
 }
 
 class Project {
-  final String username, project, token, configFile;
+  final String? username, project, token, configFile;
   final Completer completer;
-  HopConfig config;
+  late HopConfig config;
 
   Project(this.completer,
       {this.username, this.project, this.token, this.configFile}) {
@@ -91,15 +95,15 @@ class Project {
     });
   }
 
-  String get name => this.config.project;
+  String? get name => this.config.project;
 }
 
 Future<Project> initialize(
     {String name = "DEFAULT",
     String configFile = ".hop.config",
-    String username,
-    String project,
-    String token}) async {
+    String? username,
+    String? project,
+    String? token}) async {
   WidgetsFlutterBinding.ensureInitialized();
   Completer completer = Completer();
   final Project proj = Project(completer,
@@ -112,19 +116,19 @@ Future<Project> initialize(
   return proj;
 }
 
-Project get project {
+Project? get project {
   final name = "DEFAULT";
   assert(_projects.containsKey(name),
       "Project DEFAULT does not exist. You need to initialize the project first with init.initialize()");
   return _projects[name];
 }
 
-Project getProject(String name) {
+Project? getProject(String name) {
   assert(_projects.containsKey(name),
       "Project $name does not exist. You need to initialize the project first with init.initialize(project: $name)");
   return _projects[name];
 }
 
-HopConfig get config {
-  return project.config;
+HopConfig? get config {
+  return project?.config;
 }

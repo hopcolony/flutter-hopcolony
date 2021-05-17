@@ -7,10 +7,10 @@ import 'exchange.dart';
 import 'stomp.dart';
 
 class HopTopic {
-  init.Project project;
-  HopTopicConnectionSettings connectionSettings;
-  HopTopicAuthenticator authenticator;
-  HopTopicClient _client;
+  late init.Project project;
+  late HopTopicConnectionSettings connectionSettings;
+  late HopTopicAuthenticator authenticator;
+  HopTopicClient? _client;
   final _host = "topics.hopcolony.io";
 
   List<OpenConnection> openConnections = [];
@@ -18,12 +18,12 @@ class HopTopic {
   static final HopTopic instance = HopTopic._internal();
   factory HopTopic() => instance;
   HopTopic._internal() {
-    project = init.project;
+    project = init.project!;
     authenticator = HopTopicAuthenticator(
-        username: init.config.identity, password: init.config.token);
+        username: init.config!.identity!, password: init.config!.token!);
     connectionSettings = HopTopicConnectionSettings(
         host: _host,
-        virtualHost: init.config.identity,
+        virtualHost: init.config!.identity!,
         authenticator: authenticator);
 
     if (_client == null) {
@@ -34,9 +34,9 @@ class HopTopic {
   }
 
   String get host => _host;
-  String get identity => init.config.identity;
+  String get identity => init.config!.identity!;
 
-  HopTopicQueue queue(String name) => HopTopicQueue(addOpenConnection, _client,
+  HopTopicQueue queue(String name) => HopTopicQueue(addOpenConnection, _client!,
       exchange: "",
       exchangeType: ExchangeType.DIRECT,
       binding: name,
@@ -44,10 +44,10 @@ class HopTopic {
 
   HopTopicExchange exchange(String name,
           {create = false, type = ExchangeType.TOPIC}) =>
-      HopTopicExchange(addOpenConnection, _client, name,
+      HopTopicExchange(addOpenConnection, _client!, name,
           create: create, type: type);
 
-  HopTopicQueue topic(String name) => HopTopicQueue(addOpenConnection, _client,
+  HopTopicQueue topic(String name) => HopTopicQueue(addOpenConnection, _client!,
       exchange: "amq.topic", binding: name);
 
   void addOpenConnection(OpenConnection connection) {
@@ -63,6 +63,6 @@ class HopTopic {
 
   void close() {
     closeOpenConnections();
-    _client.close();
+    _client?.close();
   }
 }

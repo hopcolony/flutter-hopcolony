@@ -11,7 +11,7 @@ class PlainAuthenticator implements Authenticator {
   String get saslType => "PLAIN";
 
   /// Process the [challenge] sent by the server and return a [String] response
-  String answerChallenge(String challenge) {
+  String answerChallenge(String? challenge) {
     StringBuffer sb = StringBuffer()
       ..writeCharCode(0)
       ..write(userName)

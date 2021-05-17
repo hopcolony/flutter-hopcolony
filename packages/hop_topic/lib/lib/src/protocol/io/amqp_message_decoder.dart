@@ -25,7 +25,7 @@ class AmqpMessageDecoder {
     switch (rawFrame.header.type) {
       case FrameType.METHOD:
         DecodedMessageImpl decodedMessage = DecodedMessageImpl(
-            rawFrame.header.channel, Message.fromStream(decoder));
+            rawFrame.header.channel!, Message.fromStream(decoder));
         // If we are already processing an incomplete frame then this is an error
         if (incompleteMessages.containsKey(decodedMessage.channel)) {
           throw ConnectionException(
@@ -48,26 +48,26 @@ class AmqpMessageDecoder {
         ContentHeader contentHeader = ContentHeader.fromByteData(decoder);
 
         DecodedMessageImpl decodedMessage =
-            incompleteMessages[rawFrame.header.channel];
+            incompleteMessages[rawFrame.header.channel!]!;
 
         // Check for errors
         if (decodedMessage == null) {
           throw ConnectionException(
               "Received a HEADER frame without a matching METHOD frame",
               ErrorType.UNEXPECTED_FRAME,
-              contentHeader.classId,
+              contentHeader.classId!,
               0);
         } else if (decodedMessage.contentHeader != null) {
           throw ConnectionException(
               "Received a duplicate HEADER frame for an incomplete METHOD frame",
               ErrorType.UNEXPECTED_FRAME,
-              contentHeader.classId,
+              contentHeader.classId!,
               0);
         } else if (decodedMessage.message.msgClassId != contentHeader.classId) {
           throw ConnectionException(
               "Received a HEADER frame that does not match the METHOD frame class id",
               ErrorType.UNEXPECTED_FRAME,
-              contentHeader.classId,
+              contentHeader.classId!,
               0);
         }
 
@@ -75,15 +75,15 @@ class AmqpMessageDecoder {
         decodedMessage..contentHeader = contentHeader;
 
         // If the frame defines no content emit it now
-        if (decodedMessage.contentHeader.bodySize == 0) {
-          sink.add(incompleteMessages.remove(decodedMessage.channel));
+        if (decodedMessage.contentHeader!.bodySize == 0) {
+          sink.add(incompleteMessages.remove(decodedMessage.channel)!);
         } else {
           decodedMessage.payloadBuffer = ChunkedOutputWriter();
         }
         break;
       case FrameType.BODY:
         DecodedMessageImpl decodedMessage =
-            incompleteMessages[rawFrame.header.channel];
+            incompleteMessages[rawFrame.header.channel]!;
 
         // Check for errors
         if (decodedMessage == null) {
@@ -101,18 +101,18 @@ class AmqpMessageDecoder {
         }
 
         // Append the payload chunk
-        decodedMessage.payloadBuffer.addLast(Uint8List.view(
+        decodedMessage.payloadBuffer!.addLast(Uint8List.view(
             rawFrame.payload.buffer, 0, rawFrame.payload.lengthInBytes));
 
         // Are we done?
-        if (decodedMessage.payloadBuffer.lengthInBytes ==
-            decodedMessage.contentHeader.bodySize) {
+        if (decodedMessage.payloadBuffer!.lengthInBytes ==
+            decodedMessage.contentHeader!.bodySize) {
           decodedMessage.finalizePayload();
-          sink.add(incompleteMessages.remove(decodedMessage.channel));
+          sink.add(incompleteMessages.remove(decodedMessage.channel)!);
         }
         break;
       case FrameType.HEARTBEAT:
-        sink.add(HeartbeatFrameImpl(rawFrame.header.channel));
+        sink.add(HeartbeatFrameImpl(rawFrame.header.channel!));
         break;
     }
   }

@@ -5,7 +5,7 @@ import 'client.dart';
 import 'package:stomp_dart_client/stomp.dart';
 
 class STOMPHopTopicClient extends HopTopicClient {
-  StompClient _stompClient;
+  late StompClient _stompClient;
   dynamic _stompUnsubscribeFunction;
 
   Completer connected = Completer();
@@ -66,7 +66,7 @@ class STOMPHopTopicClient extends HopTopicClient {
       destination: getSTOMPDestination(exchangeName, binding, queueName),
       headers: headers,
       callback: (frame) =>
-          controller?.add(HopTopicMessage.fromSTOMP(frame, outputType)),
+          controller.add(HopTopicMessage.fromSTOMP(frame, outputType)),
     );
 
     return () {

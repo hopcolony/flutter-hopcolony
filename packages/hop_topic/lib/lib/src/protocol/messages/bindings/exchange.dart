@@ -14,15 +14,15 @@ class ExchangeDeclare implements Message {
   final int msgMethodId = 10;
 
   // Message arguments
-  int reserved_1;
-  String exchange;
-  String type;
-  bool passive;
-  bool durable;
-  bool reserved_2;
-  bool reserved_3;
-  bool noWait;
-  Map<String, Object> arguments;
+  int? reserved_1;
+  String? exchange;
+  String? type;
+  bool? passive;
+  bool? durable;
+  bool? reserved_2;
+  bool? reserved_3;
+  bool? noWait;
+  Map<String, Object>? arguments;
 
   ExchangeDeclare();
 
@@ -30,7 +30,7 @@ class ExchangeDeclare implements Message {
     encoder
       ..writeUInt16(msgClassId)
       ..writeUInt16(msgMethodId)
-      ..writeUInt16(reserved_1)
+      ..writeUInt16(reserved_1!)
       ..writeShortString(exchange)
       ..writeShortString(type)
       ..writeBits([passive, durable, reserved_2, reserved_3, noWait])
@@ -56,10 +56,10 @@ class ExchangeDelete implements Message {
   final int msgMethodId = 20;
 
   // Message arguments
-  int reserved_1;
-  String exchange;
-  bool ifUnused;
-  bool noWait;
+  int? reserved_1;
+  String? exchange;
+  bool? ifUnused;
+  bool? noWait;
 
   ExchangeDelete();
 
@@ -67,7 +67,7 @@ class ExchangeDelete implements Message {
     encoder
       ..writeUInt16(msgClassId)
       ..writeUInt16(msgMethodId)
-      ..writeUInt16(reserved_1)
+      ..writeUInt16(reserved_1!)
       ..writeShortString(exchange)
       ..writeBits([ifUnused, noWait]);
   }

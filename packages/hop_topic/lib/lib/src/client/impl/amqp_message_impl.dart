@@ -4,25 +4,25 @@ class _AmqpMessageImpl implements AmqpMessage {
   final _ConsumerImpl consumer;
   final DecodedMessage message;
 
-  MessageProperties get properties => message.properties;
+  MessageProperties? get properties => message.properties;
 
   _AmqpMessageImpl.fromDecodedMessage(this.consumer, this.message);
 
-  Uint8List get payload => message.payload;
+  Uint8List? get payload => message.payload;
 
-  String get payloadAsString => message.payloadAsString;
+  String? get payloadAsString => message.payloadAsString;
 
-  Map get payloadAsJson => message.payloadAsJson;
+  Map? get payloadAsJson => message.payloadAsJson;
 
   String get exchangeName => (message.message as BasicDeliver).exchange;
 
   String get routingKey => (message.message as BasicDeliver).routingKey;
 
   void reply(Object responseMessage,
-      {MessageProperties properties,
+      {MessageProperties? properties,
       bool mandatory = false,
       bool immediate = false}) {
-    if (message.properties.replyTo == null) {
+    if (message.properties!.replyTo == null) {
       throw ArgumentError(
           "No reply-to property specified in the incoming message");
     }
@@ -30,11 +30,11 @@ class _AmqpMessageImpl implements AmqpMessage {
     MessageProperties responseProperties =
         properties == null ? MessageProperties() : properties;
 
-    responseProperties.corellationId = message.properties.corellationId;
+    responseProperties.corellationId = message.properties!.corellationId;
 
     BasicPublish pubRequest = BasicPublish()
       ..reserved_1 = 0
-      ..routingKey = message.properties.replyTo // send to 'reply-to'
+      ..routingKey = message.properties!.replyTo! // send to 'reply-to'
       ..exchange = ""
       ..mandatory = mandatory
       ..immediate = immediate;

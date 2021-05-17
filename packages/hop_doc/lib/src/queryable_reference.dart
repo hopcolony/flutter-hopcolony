@@ -1,24 +1,16 @@
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:hop_doc/src/geo.dart';
 import 'doc.dart';
 import 'document_reference.dart';
 import 'index_reference.dart';
 import 'query.dart';
-import 'package:websocket/websocket.dart' show WebSocket;
 import 'dart:convert';
 
 class QueryableReference {
   HopDocClient client;
   String index;
-  StreamController<IndexSnapshot> controller;
-  Map<String, Document> _cachedIndex;
   QueryableReference(this.client, this.index);
-
-  void dispose() {
-    controller.close();
-  }
 
   Map<String, dynamic> get compoundBody {
     return {
@@ -35,12 +27,12 @@ class QueryableReference {
 
   Query where(
     String field, {
-    String isEqualTo,
-    int isGreaterThan,
-    int isGreaterThanOrEqualTo,
-    int isLessThan,
-    int isLessThanOrEqualTo,
-    String contains,
+    String? isEqualTo,
+    int? isGreaterThan,
+    int? isGreaterThanOrEqualTo,
+    int? isLessThan,
+    int? isLessThanOrEqualTo,
+    String? contains,
   }) =>
       Query(client, index, compoundBody, field,
           isEqualTo: isEqualTo,
@@ -50,7 +42,12 @@ class QueryableReference {
           isLessThanOrEqualTo: isLessThanOrEqualTo,
           contains: contains);
 
-  Query withinRadius({GeoPoint center, String radius, String field}) => Query(
+  Query withinRadius({
+    required GeoPoint center,
+    required String radius,
+    required String field,
+  }) =>
+      Query(
         client,
         index,
         compoundBody,
@@ -59,7 +56,11 @@ class QueryableReference {
             GeoDistanceQuery(center: center, radius: radius, field: field),
       );
 
-  Query withinBox({GeoPoint topLeft, GeoPoint bottomRight, String field}) =>
+  Query withinBox({
+    required GeoPoint topLeft,
+    required GeoPoint bottomRight,
+    required String field,
+  }) =>
       Query(
         client,
         index,
@@ -69,7 +70,7 @@ class QueryableReference {
             topLeft: topLeft, bottomRight: bottomRight, field: field),
       );
 
-  Query start({int at, Document after, bool nanoDate: false}) => Query(
+  Query start({int? at, Document? after, bool nanoDate: false}) => Query(
         client,
         index,
         compoundBody,
@@ -87,7 +88,8 @@ class QueryableReference {
         limit: number,
       );
 
-  Query orderBy({String field, String order = "asc", bool addId: true}) =>
+  Query orderBy(
+          {required String field, String order = "asc", bool addId: true}) =>
       Query(
         client,
         index,
@@ -97,9 +99,9 @@ class QueryableReference {
         addId: addId,
       );
 
-  Future<IndexSnapshot> get({int size, bool onlyIds: false}) async {
+  Future<IndexSnapshot> get({int? size, bool onlyIds: false}) async {
     try {
-      Map data = compoundBody;
+      Map<String, dynamic> data = compoundBody;
       if (onlyIds) data["stored_fields"] = [];
       if (size != null) data["size"] = size;
       final response = await client.post("/$index/_search", data: data);
@@ -113,26 +115,22 @@ class QueryableReference {
   }
 
   Widget getWidget({
-    @required Widget Function(List<Document>) onData,
-    @required Widget Function(String) onError,
-    @required Widget Function() onLoading,
+    required Widget Function(List<Document>) onData,
+    required Widget Function(String) onError,
+    required Widget Function() onLoading,
   }) {
     return FutureBuilder<IndexSnapshot>(
         future: get(),
         builder: (context, AsyncSnapshot<IndexSnapshot> snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data.success) {
-              return onData(snapshot.data.docs);
+            if (snapshot.data!.success) {
+              return onData(snapshot.data!.docs);
             } else {
-              return onError(snapshot.data.reason);
+              return onError(snapshot.data!.reason);
             }
           }
           return onLoading();
         });
-  }
-
-  IndexSnapshot get cachedToIndexSnapshot {
-    return IndexSnapshot(_cachedIndex.values.toList(), success: true);
   }
 
   bool docInQuery(Map<String, dynamic> doc) {
@@ -156,55 +154,5 @@ class QueryableReference {
       }
     }
     return true;
-  }
-
-  Stream<IndexSnapshot> stream() {
-    WebSocket ws;
-    client.connect("/_changes/$index/*").then((WebSocket websocket) {
-      ws = websocket;
-      print('[+]Connected to $index stream');
-      if (ws.readyState == 1) {
-        ws.stream.listen(
-          (data) {
-            Map<String, dynamic> doc = jsonDecode(data);
-            if (doc["_operation"] == "DELETE") {
-              _cachedIndex.remove(doc["_id"]);
-            } else if (docInQuery(doc)) {
-              _cachedIndex[doc["_id"]] = Document(doc["_source"],
-                  index: doc["_index"],
-                  id: doc["_id"],
-                  version: doc["_version"]);
-            }
-
-            controller.add(cachedToIndexSnapshot);
-          },
-          onDone: () => print('[+]Closed connection to $index stream'),
-          onError: (err) =>
-              print('[!]Error on $index stream -- ${err.toString()}'),
-          cancelOnError: true,
-        );
-      } else
-        print('[!]Connection denied to $index stream');
-    });
-
-    void onListen() async {
-      IndexSnapshot snapshot = await get();
-      _cachedIndex = {};
-      if (snapshot.success) {
-        for (Document doc in snapshot.docs) {
-          if (docInQuery(doc.json)) {
-            _cachedIndex[doc.id] = doc;
-          }
-        }
-      }
-      controller.add(cachedToIndexSnapshot);
-    }
-
-    controller = StreamController<IndexSnapshot>(
-        onListen: onListen,
-        onResume: () async => controller.add(cachedToIndexSnapshot),
-        onCancel: () => ws.close());
-
-    return controller.stream;
   }
 }

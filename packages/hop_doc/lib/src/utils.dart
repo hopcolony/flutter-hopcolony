@@ -13,14 +13,14 @@ class TimeHelper {
 
   static String nanosecondsSinceEpoch(String date) {
     var re = _parseFormat;
-    Match match = re.firstMatch(date);
+    Match? match = re.firstMatch(date);
     if (match != null) {
-      int parseIntOrZero(String matched) {
+      int parseIntOrZero(String? matched) {
         if (matched == null) return 0;
         return int.parse(matched);
       }
 
-      int parseNanoseconds(String matched) {
+      int parseNanoseconds(String? matched) {
         if (matched == null) return 0;
         int length = matched.length;
         assert(length >= 1);
@@ -34,22 +34,20 @@ class TimeHelper {
         return result;
       }
 
-      int years = int.parse(match[1]);
-      int month = int.parse(match[2]);
-      int day = int.parse(match[3]);
+      int years = int.parse(match[1]!);
+      int month = int.parse(match[2]!);
+      int day = int.parse(match[3]!);
       int hour = parseIntOrZero(match[4]);
       int minute = parseIntOrZero(match[5]);
       int second = parseIntOrZero(match[6]);
       int ns = parseNanoseconds(match[7]);
-      bool isUtc = false;
       if (match[8] != null) {
         // timezone part
-        isUtc = true;
-        String tzSign = match[9];
-        if (tzSign != null) {
+        String tzSign = match[9] ?? "";
+        if (tzSign != "") {
           // timezone other than 'Z' and 'z'.
           int sign = (tzSign == '-') ? -1 : 1;
-          int hourDifference = int.parse(match[10]);
+          int hourDifference = int.parse(match[10]!);
           int minuteDifference = parseIntOrZero(match[11]);
           minuteDifference += 60 * hourDifference;
           minute -= sign * minuteDifference;

@@ -11,32 +11,32 @@ Future<Uint8List> loadImage(path) async {
 }
 
 class HopDrive {
-  init.Project project;
-  HopDriveClient client;
-  Signer signer;
+  late init.Project project;
+  HopDriveClient? client;
+  late Signer signer;
   static final HopDrive instance = HopDrive._internal();
   factory HopDrive() => instance;
   HopDrive._internal() {
     if (client == null) {
-      project = init.project;
+      project = init.project!;
       signer = Signer(
         host: "drive.hopcolony.io",
-        accessKey: project.config.project,
-        secretKey: project.config.token,
+        accessKey: project.config.project!,
+        secretKey: project.config.token!,
       );
       client = HopDriveClient(
-        project: init.project,
+        project: init.project!,
         signer: signer,
       );
     }
   }
 
-  BucketReference bucket(bucket) => BucketReference(client, bucket);
+  BucketReference bucket(bucket) => BucketReference(client!, bucket);
 
   Future<List<Bucket>> get() async {
     List<Bucket> buckets = [];
     try {
-      http.Response response = await client.get("/");
+      http.Response response = await client!.get("/");
       final document = XmlDocument.parse(await response.body);
       for (final soup in document.findAllElements("Bucket")) {
         final name = soup.findElements('Name').single.text;
@@ -58,15 +58,16 @@ class HopDriveClient {
   init.Project project;
   final String host = "drive.hopcolony.io";
   final int port = 443;
-  String identity, _baseUrl;
+  String identity;
+  late String _baseUrl;
   final Signer signer;
   final http.Client client = http.Client();
 
   String get baseUrl => _baseUrl;
 
-  HopDriveClient({init.Project project, this.signer})
+  HopDriveClient({required init.Project project, required this.signer})
       : project = project,
-        identity = project.config.identity {
+        identity = project.config.identity! {
     _baseUrl = "https://$host:$port";
   }
 
@@ -80,7 +81,7 @@ class HopDriveClient {
     return response;
   }
 
-  Future<http.Response> put(String path, {Uint8List bodyBytes}) async {
+  Future<http.Response> put(String path, {Uint8List? bodyBytes}) async {
     bodyBytes = bodyBytes ?? Uint8List(0);
     SignDetails signDetails = signer.sign("PUT", path, bodyBytes: bodyBytes);
     signDetails.headers["contentLengthHeader"] = bodyBytes.length.toString();

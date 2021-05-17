@@ -25,3 +25,7 @@
 
 * Added signInWithEmailAndPassword
 * Added HopAuth.instance.ready
+
+## 0.0.7
+
+* Added null-safety

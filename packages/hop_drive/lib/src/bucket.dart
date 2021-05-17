@@ -23,7 +23,7 @@ class BucketReference {
       }
       return BucketSnapshot(objects, success: true);
     } catch (_) {
-      return BucketSnapshot(null, success: false);
+      return BucketSnapshot([], success: false);
     }
   }
 
@@ -71,7 +71,7 @@ class BucketReference {
 class BucketSnapshot {
   final List<Object> objects;
   final bool success;
-  BucketSnapshot(this.objects, {this.success});
+  BucketSnapshot(this.objects, {required this.success});
 }
 
 class Bucket {

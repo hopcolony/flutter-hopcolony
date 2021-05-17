@@ -8,6 +8,6 @@ enum ProviderType {
 class AuthCredential {
   final String provider;
   final Token idToken;
-  String email, name, picture, locale;
-  AuthCredential({this.provider, this.idToken});
+  String? email, name, picture, locale;
+  AuthCredential({required this.provider, required this.idToken});
 }

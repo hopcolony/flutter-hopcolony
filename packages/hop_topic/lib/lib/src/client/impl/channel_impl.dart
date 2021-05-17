@@ -5,14 +5,14 @@ class _ChannelImpl implements Channel {
   final int channelId;
 
   _ClientImpl _client;
-  FrameWriter _frameWriter;
-  Completer<Channel> _channelOpened;
-  Completer<Channel> _channelClosed;
-  ListQueue<Completer> _pendingOperations;
-  ListQueue<Object> _pendingOperationPayloads;
-  Map<String, _ConsumerImpl> _consumers;
-  Message _lastHandshakeMessage;
-  Exception _channelCloseException;
+  late FrameWriter _frameWriter;
+  Completer<Channel>? _channelOpened;
+  Completer<Channel>? _channelClosed;
+  late ListQueue<Completer> _pendingOperations;
+  late ListQueue<Object> _pendingOperationPayloads;
+  late Map<String, _ConsumerImpl> _consumers;
+  Message? _lastHandshakeMessage;
+  late Exception _channelCloseException;
   final _basicReturnStream = StreamController<BasicReturnMessage>.broadcast();
 
   _ChannelImpl(this.channelId, this._client) {
@@ -32,7 +32,7 @@ class _ChannelImpl implements Channel {
   }
 
   void writeProtocolHeader() {
-    _pendingOperations.add(_client._connected);
+    _pendingOperations.add(_client._connected!);
     _pendingOperationPayloads.add(this);
 
     // Transmit handshake
@@ -42,24 +42,24 @@ class _ChannelImpl implements Channel {
           _client.settings.amqpMajorVersion,
           _client.settings.amqpMinorVersion,
           _client.settings.amqpRevision)
-      ..pipe(_client._socket);
+      ..pipe(_client._socket!);
   }
 
   void writeHeartbeat() {
     // Transmit heartbeat
     _frameWriter
       ..writeHeartbeat()
-      ..pipe(_client._socket);
+      ..pipe(_client._socket!);
   }
 
   /// Encode and transmit [message] optionally accompanied by a server frame with [payloadContent].
   ///
   /// A [StateError] will be thrown when trying to write a message to a closed channel
   void writeMessage(Message message,
-      {MessageProperties properties,
-      Object payloadContent,
-      Completer completer,
-      Object futurePayload}) {
+      {MessageProperties? properties,
+      Object? payloadContent,
+      Completer? completer,
+      Object? futurePayload}) {
     if (_channelClosed != null && (_channelClosed != completer)) {
       throw _channelCloseException == null
           ? StateError("Channel has been closed")
@@ -72,11 +72,10 @@ class _ChannelImpl implements Channel {
       _pendingOperationPayloads
           .addLast(futurePayload != null ? futurePayload : true);
     }
-
     _frameWriter
       ..writeMessage(channelId, message,
           properties: properties, payloadContent: payloadContent)
-      ..pipe(_client._socket);
+      ..pipe(_client._socket!);
   }
 
   /// Implement the handshake flow specified by the AMQP spec by
@@ -128,7 +127,6 @@ class _ChannelImpl implements Channel {
         break;
       case ConnectionTune:
         ConnectionTune serverResponse = serverMessage.message as ConnectionTune;
-
         // Update tuning settings unless our client forces a specific value
         _client.tuningSettings
           ..maxFrameSize = serverResponse.frameMax
@@ -142,7 +140,6 @@ class _ChannelImpl implements Channel {
           ..frameMax = serverResponse.frameMax
           ..channelMax = _client.tuningSettings.maxChannels
           ..heartbeat = 0;
-
         _lastHandshakeMessage = clientResponse;
         writeMessage(clientResponse);
 
@@ -156,7 +153,7 @@ class _ChannelImpl implements Channel {
         break;
       case ConnectionOpenOk:
         _lastHandshakeMessage = null;
-        _completeOperation(serverMessage.message);
+        _completeOperation(serverMessage.message!);
         break;
       default:
         throw FatalException(
@@ -171,13 +168,13 @@ class _ChannelImpl implements Channel {
   ///
   /// After closing the channel any attempt to send a message over it will cause a [StateError]
   Future<Channel> _close(
-      {ErrorType replyCode,
-      String replyText,
-      int classId = 0,
-      int methodId = 0}) {
+      {ErrorType? replyCode,
+      String? replyText,
+      int? classId = 0,
+      int? methodId = 0}) {
     // Already closing / closed
     if (_channelClosed != null) {
-      return _channelClosed.future;
+      return _channelClosed!.future;
     }
 
     _channelClosed = Completer<Channel>();
@@ -190,22 +187,22 @@ class _ChannelImpl implements Channel {
 
     if (channelId == 0) {
       closeRequest = ConnectionClose()
-        ..replyCode = replyCode.value
-        ..replyText = replyText
+        ..replyCode = replyCode!.value
+        ..replyText = replyText!
         ..classId = classId
         ..methodId = methodId;
     } else {
       closeRequest = ChannelClose()
-        ..replyCode = replyCode.value
-        ..replyText = replyText
+        ..replyCode = replyCode!.value
+        ..replyText = replyText!
         ..classId = classId
         ..methodId = methodId;
     }
     writeMessage(closeRequest, completer: _channelClosed, futurePayload: this);
-    _channelClosed.future
+    _channelClosed!.future
         .then((_) => _basicReturnStream.close())
         .then((_) => _client._removeChannel(channelId));
-    return _channelClosed.future;
+    return _channelClosed!.future;
   }
 
   /// Process an incoming [serverFrame] sent to this channel
@@ -230,7 +227,7 @@ class _ChannelImpl implements Channel {
         // Ack the closing of the channel
         writeMessage(ChannelCloseOk());
 
-        _completeOperationWithError(serverMessage.message);
+        _completeOperationWithError(serverMessage.message!);
         break;
       case ChannelOpenOk:
       case ChannelCloseOk:
@@ -286,14 +283,14 @@ class _ChannelImpl implements Channel {
         break;
       case BasicDeliver:
         BasicDeliver serverResponse = (serverMessage.message as BasicDeliver);
-        _ConsumerImpl target = _consumers[serverResponse.consumerTag];
+        _ConsumerImpl target = _consumers[serverResponse.consumerTag]!;
 
         // no cosumer with tag
         if (target == null) {
           break;
         }
 
-        target.onMessage(serverMessage);
+        target.onMessage(serverMessage as DecodedMessageImpl);
         break;
       // Exchange
       case ExchangeDeclareOk:
@@ -307,7 +304,7 @@ class _ChannelImpl implements Channel {
 
   /// Complete a pending operation with [result] after receiving [serverResponse]
   /// from the socket
-  void _completeOperation(Message serverResponse) {
+  void _completeOperation(Message? serverResponse) {
     if (_pendingOperations.isEmpty) {
       return;
     }
@@ -321,7 +318,7 @@ class _ChannelImpl implements Channel {
   /// Complete a pending operation with [error] after receiving [serverResponse]
   /// from the socket
   void _completeOperationWithError(Message serverResponse) {
-    Exception ex;
+    late Exception ex;
     switch (serverResponse.runtimeType) {
       case ConnectionClose:
         ConnectionClose closeResponse = serverResponse as ConnectionClose;
@@ -355,8 +352,8 @@ class _ChannelImpl implements Channel {
 
         // Mark the channel as closed
         _channelClosed ??= Completer();
-        if (!_channelClosed.isCompleted) {
-          _channelClosed.complete();
+        if (!_channelClosed!.isCompleted) {
+          _channelClosed!.complete();
         }
         _channelCloseException = ex;
 
@@ -373,7 +370,7 @@ class _ChannelImpl implements Channel {
   /// Abort any pending operations with [exception] and mark the channel as closed
   void handleException(exception) {
     // Ignore exception if we are closed
-    if (_channelClosed != null && _channelClosed.isCompleted) {
+    if (_channelClosed != null && _channelClosed!.isCompleted) {
       return;
     }
 
@@ -400,8 +397,8 @@ class _ChannelImpl implements Channel {
     // Mark the channel as closed if we need to
     if (flagChannelAsClosed) {
       _channelClosed ??= Completer();
-      if (!_channelClosed.isCompleted) {
-        _channelClosed.complete();
+      if (!_channelClosed!.isCompleted) {
+        _channelClosed!.complete();
       }
     }
 
@@ -431,7 +428,7 @@ class _ChannelImpl implements Channel {
       bool exclusive = false,
       bool autoDelete = false,
       bool noWait = false,
-      Map<String, Object> arguments}) {
+      Map<String, Object>? arguments}) {
     QueueDeclare queueRequest = QueueDeclare()
       ..reserved_1 = 0
       ..queue = name
@@ -445,11 +442,12 @@ class _ChannelImpl implements Channel {
     Completer<Queue> opCompleter = Completer<Queue>();
     writeMessage(queueRequest,
         completer: opCompleter, futurePayload: _QueueImpl(this, name));
+
     return opCompleter.future;
   }
 
   Future<Queue> privateQueue(
-      {bool noWait = false, Map<String, Object> arguments}) {
+      {bool noWait = false, Map<String, Object>? arguments}) {
     QueueDeclare queueRequest = QueueDeclare()
       ..reserved_1 = 0
       ..queue = null
@@ -470,7 +468,7 @@ class _ChannelImpl implements Channel {
       {bool passive = false,
       bool durable = false,
       bool noWait = false,
-      Map<String, Object> arguments}) {
+      Map<String, Object>? arguments}) {
     if (name == null || name.isEmpty) {
       throw ArgumentError("The name of the exchange cannot be empty");
     }
@@ -496,13 +494,13 @@ class _ChannelImpl implements Channel {
 
   StreamSubscription<BasicReturnMessage> basicReturnListener(
           void onData(BasicReturnMessage message),
-          {Function onError,
-          void onDone(),
-          bool cancelOnError}) =>
+          {Function? onError,
+          required void onDone(),
+          bool? cancelOnError}) =>
       _basicReturnStream.stream.listen(onData,
           onError: onError, onDone: onDone, cancelOnError: cancelOnError);
 
-  Future<Channel> qos(int prefetchSize, int prefetchCount,
+  Future<Channel> qos(int? prefetchSize, int? prefetchCount,
       {bool global = true}) {
     prefetchSize ??= 0;
     prefetchCount ??= 0;

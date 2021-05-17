@@ -26,10 +26,10 @@ class ConnectionSettings {
   int amqpRevision = 1;
 
   // Tuning settings
-  TuningSettings tuningSettings;
+  TuningSettings? tuningSettings;
 
   // TLS settings (if TLS connection is required)
-  SecurityContext tlsContext;
+  SecurityContext? tlsContext;
 
   ConnectionSettings({
     this.host = "127.0.0.1",

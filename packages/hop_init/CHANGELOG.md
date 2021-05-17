@@ -9,3 +9,7 @@
 ## 0.0.3
 
 * Updated internal dependencies
+
+## 0.0.4
+
+* Added null-safety

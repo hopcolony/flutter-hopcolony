@@ -7,15 +7,15 @@ class Signer {
   final String host, accessKey, secretKey, region, algo;
 
   Signer(
-      {this.host,
-      this.accessKey,
-      this.secretKey,
+      {required this.host,
+      required this.accessKey,
+      required this.secretKey,
       this.region = "",
       this.algo = "AWS4-HMAC-SHA256"});
 
   SignDetails sign(String requestType, String rsc,
-      {Uint8List bodyBytes,
-      Map<String, dynamic> queryParameters,
+      {Uint8List? bodyBytes,
+      Map<String, dynamic>? queryParameters,
       bool presigned = false,
       String expires = "432000"}) {
     Map<String, dynamic> headers = {};
@@ -186,13 +186,15 @@ class Signer {
 class SignDetails {
   final Map<String, dynamic> headers;
   final String algo, date, expires, credential, signedHeaders, signature;
-  SignDetails(this.headers,
-      {this.algo,
-      this.date,
-      this.expires,
-      this.credential,
-      this.signedHeaders,
-      this.signature});
+  SignDetails(
+    this.headers, {
+    required this.algo,
+    required this.date,
+    required this.expires,
+    required this.credential,
+    required this.signedHeaders,
+    required this.signature,
+  });
 
   String get flatQuery {
     final query = {

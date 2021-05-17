@@ -17,3 +17,8 @@
 ## 0.0.5
 
 * Added dart_amqp as an internal dependency. Credits to https://github.com/achilleasa/dart_amqp
+
+## 0.0.6
+
+* Added null-safety
+* Updated tests to wait for subscription message to arrive

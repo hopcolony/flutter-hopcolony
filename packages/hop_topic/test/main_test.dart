@@ -5,9 +5,9 @@ import 'package:hop_topic/hop_topic.dart';
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() async {
-  final String userName = Platform.environment['HOP_USER_NAME'];
-  final String projectName = Platform.environment['HOP_PROJECT_NAME'];
-  final String tokenName = Platform.environment['HOP_TOKEN'];
+  final String? userName = Platform.environment['HOP_USER_NAME'];
+  final String? projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String? tokenName = Platform.environment['HOP_TOKEN'];
 
   final String topicDog = "topic-dog";
   final String topicCat = "topic-cat";
@@ -17,7 +17,7 @@ void main() async {
   final String dataString = "Test Message";
   final Map<String, dynamic> dataJson = {"data": "Testing Hop Topics!"};
 
-  init.Project project;
+  late init.Project project;
 
   setUpAll(() async {
     project = await init.initialize(
@@ -34,82 +34,96 @@ void main() async {
   });
 
   test('Subscriber Publisher Topic Dog', () async {
+    Completer<String> completer = Completer<String>();
     HopTopic.instance
         .topic(topicDog)
         .subscribe(outputType: OutputType.STRING)
         .listen((msg) {
-      expect(msg, dataString);
+      completer.complete(msg);
     });
-    await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.topic(topicDog).send(dataString);
+
     await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.topic(topicDog).send(dataString);
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(await completer.future, dataString);
     HopTopic.instance.closeOpenConnections();
   });
 
   test('Subscriber Publisher Topic Cat', () async {
+    Completer<Map> completer = Completer<Map>();
     HopTopic.instance
         .topic(topicCat)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      expect(msg, dataJson);
+      completer.complete(msg);
     });
-    await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.topic(topicCat).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.topic(topicCat).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(await completer.future, dataJson);
     HopTopic.instance.closeOpenConnections();
   });
 
   test('Subscriber Publisher Queue', () async {
+    Completer<Map> completer1 = Completer<Map>();
+    Completer<Map> completer2 = Completer<Map>();
     HopTopic.instance
         .queue(queueName)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      expect(msg, dataJson);
+      completer1.complete(msg);
     });
     HopTopic.instance
         .queue(queueName)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      expect(msg, dataJson);
+      completer2.complete(msg);
     });
-    await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.queue(queueName).send(dataJson);
-    HopTopic.instance.queue(queueName).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.queue(queueName).send(dataJson);
+    HopTopic.instance.queue(queueName).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(await completer1.future, dataJson);
+    expect(await completer2.future, dataJson);
     HopTopic.instance.closeOpenConnections();
   });
 
   test('Subscriber Publisher Broadcast', () async {
+    Completer<Map> completer1 = Completer<Map>();
+    Completer<Map> completer2 = Completer<Map>();
     HopTopic.instance
         .exchange(broadcastExchange)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      expect(msg, dataJson);
+      completer1.complete(msg);
     });
     HopTopic.instance
         .exchange(broadcastExchange)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      expect(msg, dataJson);
+      completer2.complete(msg);
     });
-    await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.exchange(broadcastExchange).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.exchange(broadcastExchange).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(await completer1.future, dataJson);
+    expect(await completer2.future, dataJson);
     HopTopic.instance.closeOpenConnections();
   });
 
   test('Subscriber Publisher Topic Over Exchange', () async {
+    Completer<Map> completer = Completer<Map>();
     HopTopic.instance
         .exchange(topicExchange)
         .topic(topicCat)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) {
-      // print(msg);
-      expect(msg, dataJson);
+      completer.complete(msg);
     });
-    await Future.delayed(Duration(milliseconds: 100));
-    HopTopic.instance.exchange(topicExchange).topic(topicCat).send(dataJson);
     await Future.delayed(Duration(milliseconds: 300));
+    HopTopic.instance.exchange(topicExchange).topic(topicCat).send(dataJson);
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(await completer.future, dataJson);
     HopTopic.instance.closeOpenConnections();
   });
 }

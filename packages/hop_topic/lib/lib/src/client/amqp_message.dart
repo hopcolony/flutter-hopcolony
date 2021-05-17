@@ -2,17 +2,17 @@ part of dart_amqp.client;
 
 abstract class AmqpMessage {
   /// Get the payload as a [Uint8List]
-  Uint8List get payload;
+  Uint8List? get payload;
 
   /// Get the payload as a [String]. This method will pass
   /// the message [payload] through UTF8.decode and return
   /// the decoded string.
-  String get payloadAsString;
+  String? get payloadAsString;
 
   /// Get the payload as a [Map]. This method will pass the
   /// message [payload] through a JSON decoded and return the
   /// decoded JSON data as a [Map].
-  Map get payloadAsJson;
+  Map? get payloadAsJson;
 
   /// Get the name of the exchange where this message arrived from. The
   /// method will return null if the message did not arrive through an
@@ -25,7 +25,7 @@ abstract class AmqpMessage {
   String get routingKey;
 
   /// Get the [properties] that were included with the message metadata
-  MessageProperties get properties;
+  MessageProperties? get properties;
 
   /// Acknowledge this message.
   void ack();

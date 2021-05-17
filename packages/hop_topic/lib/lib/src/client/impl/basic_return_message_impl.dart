@@ -6,11 +6,11 @@ class _BasicReturnMessageImpl implements BasicReturnMessage {
 
   _BasicReturnMessageImpl.fromDecodedMessage(this.basicReturn, this.message);
 
-  Uint8List get payload => message.payload;
+  Uint8List? get payload => message.payload;
 
-  String get payloadAsString => message.payloadAsString;
+  String? get payloadAsString => message.payloadAsString;
 
-  Map get payloadAsJson => message.payloadAsJson;
+  Map? get payloadAsJson => message.payloadAsJson;
 
   String get exchangeName => basicReturn.exchange;
 
@@ -20,5 +20,5 @@ class _BasicReturnMessageImpl implements BasicReturnMessage {
 
   String get replyText => basicReturn.replyText;
 
-  MessageProperties get properties => message.properties;
+  MessageProperties? get properties => message.properties;
 }

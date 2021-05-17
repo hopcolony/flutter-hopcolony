@@ -1,12 +1,12 @@
 part of dart_amqp.client;
 
 abstract class Client {
-  factory Client({ConnectionSettings settings}) =>
-      _ClientImpl(settings: settings);
+  factory Client({ConnectionSettings? settings}) =>
+      _ClientImpl(settings: settings!);
 
   // Configuration options
   ConnectionSettings get settings;
-  TuningSettings get tuningSettings;
+  TuningSettings? get tuningSettings;
 
   /// Check if a connection is currently in handshake state
   bool get handshaking;
@@ -25,5 +25,5 @@ abstract class Client {
 
   /// Register listener for errors
   StreamSubscription<Exception> errorListener(void onData(Exception error),
-      {Function onError, void onDone(), bool cancelOnError});
+      {Function? onError, void onDone()?, bool? cancelOnError});
 }

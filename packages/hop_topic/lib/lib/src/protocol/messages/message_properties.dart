@@ -1,19 +1,19 @@
 part of dart_amqp.protocol;
 
 class MessageProperties {
-  String contentType;
-  String contentEncoding;
-  Map<String, Object> headers;
-  int deliveryMode;
-  int priority;
-  String corellationId;
-  String replyTo;
-  String expiration;
-  String messageId;
-  DateTime timestamp;
-  String type;
-  String userId;
-  String appId;
+  String? contentType;
+  String? contentEncoding;
+  Map<String, Object>? headers;
+  int? deliveryMode;
+  int? priority;
+  String? corellationId;
+  String? replyTo;
+  String? expiration;
+  String? messageId;
+  DateTime? timestamp;
+  String? type;
+  String? userId;
+  String? appId;
 
   MessageProperties();
 
