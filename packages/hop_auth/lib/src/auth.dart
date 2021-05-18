@@ -125,7 +125,7 @@ class HopAuth {
     // Open OAuth in another window
     Uri uri = Uri.parse("https://accounts.hopcolony.io")
         .replace(queryParameters: queryParameters);
-    this._oauthWindow = window.open(uri.toString(), "Hopcolony OAuth2");
+    this._oauthWindow = window.open(uri.toString(), "OAuth - Hopcolony");
 
     // Receive confirmation via topics
     Completer<AuthResult> loginCompleted = Completer<AuthResult>();
@@ -135,10 +135,8 @@ class HopAuth {
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) async {
       if (msg["success"]) {
-        HopAuthCredential credential =
-            HopAuthProvider.credential(idToken: msg["idToken"])
-                as HopAuthCredential;
-        AuthResult result = await signInWithCredential(credential);
+        AuthResult result =
+            AuthResult(success: true, user: HopUser.fromToken(msg["idToken"]));
         loginCompleted.complete(result);
       } else {
         loginCompleted

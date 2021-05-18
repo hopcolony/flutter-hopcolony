@@ -1,3 +1,5 @@
+import 'token.dart';
+
 class HopUser {
   final DateTime registerTs, lastLoginTs;
   final String uuid, email, name, picture, locale;
@@ -24,6 +26,20 @@ class HopUser {
         locale: json["locale"],
         isAnonymous: json["isAnonymous"],
       );
+
+  factory HopUser.fromToken(String idToken) {
+    final token = Token(idToken);
+    return HopUser(
+      registerTs: DateTime.parse(token.payload["registerTs"]),
+      lastLoginTs: DateTime.parse(token.payload["lastLoginTs"]),
+      uuid: token.payload["uuid"],
+      email: token.payload["email"],
+      name: token.payload["name"],
+      picture: token.payload["picture"],
+      locale: token.payload["locale"],
+      isAnonymous: token.payload["isAnonymous"],
+    );
+  }
 
   Map<String, dynamic> get json => {
         "registerTs": registerTs.toString(),

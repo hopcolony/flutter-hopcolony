@@ -29,3 +29,7 @@
 ## 0.0.7
 
 * Added null-safety
+
+## 0.0.8
+
+* Refactored signInWithHopcolony to match OAuth server
