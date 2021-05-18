@@ -135,8 +135,8 @@ class HopAuth {
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) async {
       if (msg["success"]) {
-        AuthResult result =
-            AuthResult(success: true, user: HopUser.fromToken(msg["idToken"]));
+        final credential = HopAuthProvider.credential(idToken: msg["idToken"]);
+        AuthResult result = await signInWithCredential(credential);
         loginCompleted.complete(result);
       } else {
         loginCompleted
