@@ -37,3 +37,8 @@
 ## 0.0.9
 
 * Fixed issue with null-safety on authChangeStream
+
+## 0.0.10
+
+* Handling hopcolony sign-in in this package
+* Exporting HopAuthProvider
