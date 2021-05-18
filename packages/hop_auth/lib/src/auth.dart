@@ -162,7 +162,7 @@ class HopAuth {
   }
 
   Stream<HopUser?> authChangeStream() {
-    _authChangedController = StreamController<HopUser>(
+    _authChangedController = StreamController<HopUser?>(
         onListen: () async => _authChangedController!.add(currentUser),
         onResume: () async => _authChangedController!.add(currentUser));
 

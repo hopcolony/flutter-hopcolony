@@ -33,3 +33,7 @@
 ## 0.0.8
 
 * Refactored signInWithHopcolony to match OAuth server
+
+## 0.0.9
+
+* Fixed issue with null-safety on authChangeStream
