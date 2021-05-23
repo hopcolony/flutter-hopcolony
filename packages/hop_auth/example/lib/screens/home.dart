@@ -6,20 +6,36 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Home Page',
-            style: TextStyle(
-              fontSize: 24,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.network(_auth.currentUser.picture),
+            Text(
+              _auth.currentUser.email,
+              style: TextStyle(
+                fontSize: 24,
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () => _auth.signOut(),
-            child: Text('Sign-out'),
-          ),
-        ],
+            Text(
+              _auth.currentUser.name,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              _auth.currentUser.uuid,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _auth.signOut(),
+              child: Text('Sign-out'),
+            ),
+          ],
+        ),
       ),
     );
   }

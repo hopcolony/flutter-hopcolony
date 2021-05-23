@@ -42,3 +42,9 @@
 
 * Handling hopcolony sign-in in this package
 * Exporting HopAuthProvider
+
+## 0.1.0
+
+* signInWithHopcolony works with OAuth
+
+~~~~~~~~~NOT PUBLISHED

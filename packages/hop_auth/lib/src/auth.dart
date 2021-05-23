@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:hop_auth/src/hopcolony_provider.dart';
@@ -95,9 +96,9 @@ class HopAuth {
   Future<AuthResult> signInWithCredential(AuthCredential credential) async {
     String uuid = Uuid().v5(Uuid.NAMESPACE_DNS, credential.email);
     DocumentReference ref = _docs.index(".hop.auth").document(uuid);
-    DocumentSnapshot doc = await ref.get();
+    DocumentSnapshot snapshot = await ref.get();
     String now = DateTime.now().toString();
-    doc = doc.success
+    snapshot = snapshot.success
         ? await ref.update({"lastLoginTs": now})
         : await ref.setData({
             "registerTs": now,
@@ -111,13 +112,21 @@ class HopAuth {
             "isAnonymous": false,
           });
 
-    final user = HopUser.fromJson(doc.doc!.source!);
+    final user = HopUser.fromJson(snapshot.doc!.source!);
     await setCurrentUser(user);
     return AuthResult(success: true, user: user);
   }
 
+  String computeRemote(String instance) {
+    Map<dynamic, dynamic> data = _docs.project.config.json;
+    data["instance"] = instance;
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    return stringToBase64.encode(jsonEncode(data));
+  }
+
   Future<AuthResult> signInWithHopcolony({List<String>? scopes}) async {
-    Map<String, dynamic> queryParameters = {"client_id": init.config?.identity};
+    String instance = DateTime.now().microsecondsSinceEpoch.toString();
+    Map<String, dynamic> queryParameters = {"remote": computeRemote(instance)};
     if (scopes != null) {
       queryParameters["scope"] = scopes.join(',');
     }
@@ -131,7 +140,7 @@ class HopAuth {
     Completer<AuthResult> loginCompleted = Completer<AuthResult>();
     StreamSubscription subscription = HopTopic.instance
         .exchange("oauth")
-        .topic(init.config!.identity!)
+        .topic(instance)
         .subscribe(outputType: OutputType.JSON)
         .listen((msg) async {
       if (msg["success"]) {
