@@ -60,16 +60,21 @@ class HopDocClient {
   final int port = 443;
   String identity;
   final http.Client client = http.Client();
-  Map<String, String> headers = {};
+  late Map<String, String> _headers;
 
   HopDocClient({required init.Project project})
       : project = project,
-        identity = project.config.identity!;
+        identity = project.config.identity! {
+    _headers = {
+      'content-Type': 'application/json',
+      'Token': project.config.token ?? "",
+    };
+  }
 
   Future<Map<String, dynamic>> get(String path) async {
     final response = await client.get(
       Uri.parse("https://$host:$port/$identity/api$path"),
-      headers: {'content-Type': 'application/json'},
+      headers: _headers,
     );
 
     if (response.statusCode >= 400) throw Exception(response.body);
@@ -80,7 +85,7 @@ class HopDocClient {
       {required Map<String, dynamic> data}) async {
     final response = await client.post(
       Uri.parse("https://$host:$port/$identity/api$path"),
-      headers: {'content-Type': 'application/json'},
+      headers: _headers,
       body: jsonEncode(data),
     );
 
@@ -90,8 +95,8 @@ class HopDocClient {
 
   Future<Map<String, dynamic>> delete(String path) async {
     final response = await client.delete(
-      Uri.parse("https://$host:$port/$identity/api$path"),
-    );
+        Uri.parse("https://$host:$port/$identity/api$path"),
+        headers: _headers);
 
     if (response.statusCode >= 400) throw Exception(response.body);
     return jsonDecode(response.body);

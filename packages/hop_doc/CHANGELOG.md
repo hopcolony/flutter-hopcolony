@@ -14,3 +14,7 @@
 ## 0.0.4
 
 * Added null-safety
+
+## 0.0.5
+
+* Added Token to header

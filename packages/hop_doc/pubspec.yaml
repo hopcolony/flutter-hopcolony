@@ -1,6 +1,6 @@
 name: hop_doc
 description: Hop Colony Docs
-version: 0.0.4
+version: 0.0.5
 repository: https://github.com/hopcolony/flutter-hopcolony
 
 environment:
