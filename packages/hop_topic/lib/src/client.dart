@@ -67,7 +67,7 @@ class HopTopicConnectionSettings {
   final HopTopicAuthenticator authenticator;
   HopTopicConnectionSettings(
       {this.host = "topics.hopcolony.io",
-      this.amqpPort = 15012,
+      this.amqpPort = 32012,
       this.stompPort = 443,
       this.virtualHost = "/",
       required this.authenticator});
