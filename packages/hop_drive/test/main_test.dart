@@ -7,8 +7,8 @@ import 'package:hop_init/hop_init.dart' as init;
 import 'img.dart' as asset;
 
 void main() async {
-  final String? userName = Platform.environment['HOP_USER_NAME'];
-  final String? projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String? userName = Platform.environment['HOP_USERNAME'];
+  final String? projectName = Platform.environment['HOP_PROJECT'];
   final String? tokenName = Platform.environment['HOP_TOKEN'];
 
   final String bucket = "hop-test";

@@ -16,6 +16,6 @@ jobs:
           flutter-version: '2.0.5'
       - run: ./test.sh hop_drive
         env:
-          HOP_USER_NAME: ${{ secrets.HOP_USER_NAME }}
-          HOP_PROJECT_NAME: ${{ secrets.HOP_PROJECT_NAME }}
+          HOP_USERNAME: ${{ secrets.HOP_USER_NAME }}
+          HOP_PROJECT: ${{ secrets.HOP_PROJECT_NAME }}
           HOP_TOKEN: ${{ secrets.HOP_TOKEN }}

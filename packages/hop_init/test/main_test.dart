@@ -3,8 +3,8 @@ import 'dart:io' show Platform;
 import 'package:hop_init/hop_init.dart' as init;
 
 void main() {
-  final String? userName = Platform.environment['HOP_USER_NAME'];
-  final String? projectName = Platform.environment['HOP_PROJECT_NAME'];
+  final String? userName = Platform.environment['HOP_USERNAME'];
+  final String? projectName = Platform.environment['HOP_PROJECT'];
   final String? tokenName = Platform.environment['HOP_TOKEN'];
 
   test('Test Initialize', () async {
